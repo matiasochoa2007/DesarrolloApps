@@ -8,8 +8,10 @@ no contiene reglas de negocio: captura datos, llama a los módulos M1 a M7 y
 muestra sus mensajes en la barra de estado.
 """
 
+import sys
 import tkinter as tk
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from tkinter import messagebox, ttk
 
 from config import settings
@@ -101,8 +103,17 @@ class App(tk.Tk):
         self.geometry(f"{ancho}x{alto}")
         self.minsize(min(px(980), ancho), min(px(600), alto))
         self.configure(bg=COLOR_FONDO)
+        self._poner_icono()
         self._configurar_estilos()
         self.mostrar_login()
+
+    def _poner_icono(self):
+        # Dentro del .exe los archivos empaquetados están en sys._MEIPASS.
+        base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+        try:
+            self.iconbitmap(default=str(base / "assets" / "orthoimagen.ico"))
+        except tk.TclError:
+            pass
 
     def _configurar_estilos(self):
         estilo = ttk.Style(self)

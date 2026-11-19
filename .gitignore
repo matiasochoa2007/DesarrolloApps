@@ -23,3 +23,9 @@ data/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Empaquetado con PyInstaller
+build/
+dist/
+*.spec
+.venv-build/
