@@ -5,10 +5,16 @@ datos y los parámetros de seguridad. No se guardan claves ni secretos.
 """
 
 import os
+import sys
 from pathlib import Path
 
-# Carpeta raíz del repositorio (DesarrolloApps/).
-RAIZ_PROYECTO = Path(__file__).resolve().parent.parent
+# Carpeta raíz: la del repositorio (DesarrolloApps/) o, si se ejecuta el
+# .exe generado con PyInstaller, la carpeta donde está el ejecutable. Así la
+# base de datos se conserva entre ejecuciones del .exe.
+if getattr(sys, "frozen", False):
+    RAIZ_PROYECTO = Path(sys.executable).resolve().parent
+else:
+    RAIZ_PROYECTO = Path(__file__).resolve().parent.parent
 
 # Ruta de la base SQLite (RF-09). Se puede cambiar con la variable de
 # entorno ORTHOIMAGEN_BD, por ejemplo para usar una base de pruebas.
