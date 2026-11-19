@@ -165,3 +165,84 @@ class BaseDatos:
     def _consultar_uno(self, sql, parametros=()):
         filas = self._consultar(sql, parametros)
         return filas[0] if filas else None
+
+    # -- Pacientes ------------------------------------------------------------
+
+    def insertar_paciente(self, nombre, apellidos, telefono, correo=None,
+                          fecha_nacimiento=None):
+        cursor = self._ejecutar(
+            "INSERT INTO paciente (nombre, apellidos, telefono, correo, "
+            "fecha_nacimiento) VALUES (?, ?, ?, ?, ?)",
+            (nombre, apellidos, telefono, correo, fecha_nacimiento),
+        )
+        return cursor.lastrowid
+
+    def obtener_paciente(self, id_paciente):
+        return self._consultar_uno(
+            "SELECT * FROM paciente WHERE id_paciente = ?", (id_paciente,)
+        )
+
+    def listar_pacientes(self):
+        return self._consultar(
+            "SELECT * FROM paciente ORDER BY apellidos, nombre"
+        )
+
+    # -- Odontólogos ----------------------------------------------------------
+
+    def insertar_odontologo(self, nombre, apellidos, especialidad=None,
+                            activo=True):
+        cursor = self._ejecutar(
+            "INSERT INTO odontologo (nombre, apellidos, especialidad, activo) "
+            "VALUES (?, ?, ?, ?)",
+            (nombre, apellidos, especialidad, 1 if activo else 0),
+        )
+        return cursor.lastrowid
+
+    def obtener_odontologo(self, id_odontologo):
+        return self._consultar_uno(
+            "SELECT * FROM odontologo WHERE id_odontologo = ?", (id_odontologo,)
+        )
+
+    def listar_odontologos(self, solo_activos=True):
+        sql = "SELECT * FROM odontologo"
+        if solo_activos:
+            sql += " WHERE activo = 1"
+        return self._consultar(sql + " ORDER BY apellidos, nombre")
+
+    # -- Servicios (catálogo, RF-08) -----------------------------------------
+
+    def insertar_servicio(self, nombre, duracion_min, descripcion=None,
+                          precio=None):
+        cursor = self._ejecutar(
+            "INSERT INTO servicio (nombre, descripcion, duracion_min, precio) "
+            "VALUES (?, ?, ?, ?)",
+            (nombre, descripcion, duracion_min, precio),
+        )
+        return cursor.lastrowid
+
+    def obtener_servicio(self, id_servicio):
+        return self._consultar_uno(
+            "SELECT * FROM servicio WHERE id_servicio = ?", (id_servicio,)
+        )
+
+    def listar_servicios(self):
+        return self._consultar("SELECT * FROM servicio ORDER BY nombre")
+
+    # -- Usuarios (RF-11) ------------------------------------------------------
+
+    def insertar_usuario(self, nombre_usuario, contrasena_hash, rol,
+                         id_paciente=None, id_odontologo=None):
+        cursor = self._ejecutar(
+            "INSERT INTO usuario (nombre_usuario, contrasena_hash, rol, "
+            "id_paciente, id_odontologo) VALUES (?, ?, ?, ?, ?)",
+            (nombre_usuario, contrasena_hash, rol, id_paciente, id_odontologo),
+        )
+        return cursor.lastrowid
+
+    def obtener_usuario_por_nombre(self, nombre_usuario):
+        return self._consultar_uno(
+            "SELECT * FROM usuario WHERE nombre_usuario = ?", (nombre_usuario,)
+        )
+
+    def contar_usuarios(self):
+        return self._consultar_uno("SELECT COUNT(*) AS total FROM usuario")["total"]
