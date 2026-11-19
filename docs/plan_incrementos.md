@@ -3,7 +3,7 @@
 **Equipo:** Matias Ochoa Tirado y Mateo Javier Ortega Fernández
 **Materia:** Desarrollo de Aplicaciones y Servicios Virtuales · Universidad Iberoamericana León
 **Última actualización:** 19 de noviembre de 2026
-**Avance global:** 100 % (11 de 11 RF publicados en GitHub con tag)
+**Avance global:** 100 % (11 de 11 RF publicados en GitHub con tag) · RF-12 propuesto en v1.1.0
 
 > **Fuente única del plan:** el documento de especificaciones del proyecto (secciones 5, 6.1, 6.2, 6.3 y 6.4),
 > consolidado en [especificaciones.md](especificaciones.md). Todo lo que no aparece ahí se registra como ambigüedad.
@@ -25,6 +25,7 @@
 | RF-03 | Modificar citas (HU-04, HU-05) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-10 a CA-16) | Publicado (v0.4.0) |
 | RF-04 | Cancelar citas (HU-06, HU-07) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-17 a CA-23) | Publicado (v0.4.0) |
 | RF-05 | Eliminar citas, solo recepción (HU-08) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-24 a CA-26) | Publicado (v0.4.0) |
+| RF-12 (propuesto) | Registro de pacientes nuevos y gestión de accesos | 1.1 | v1.1.0 | Ver ambigüedad A2 | Publicado; pendiente de aprobación |
 
 Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de revisión).
 
@@ -82,6 +83,17 @@ Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de rev
 | Cierres diferidos verificados | CA-01 (`test_agenda.py`) y CA-40 (`test_appointments_cambios.py`) |
 | Estado | Cerrado y etiquetado (v0.4.0). Regresión: 148 pruebas, 0 fallidas. |
 
+### Versión 1.1 · v1.1.0 · rama `version-1.1`
+
+| Campo | Respuesta del equipo |
+|-------|----------------------|
+| Objetivo | Un cliente nuevo puede darse de alta (por sí mismo o en recepción) y un cliente de siempre puede obtener o recuperar su acceso, en una interfaz profesional con manual de usuario. |
+| Requerimiento | RF-12 propuesto (ver A2). No modifica RF-01 a RF-11. |
+| Módulos | M8 Registro de pacientes (`modules/patients.py`), `interfaz/api.py`, `interfaz/web/`, M7 (alta en una transacción) y M1 (permisos nuevos) |
+| Pruebas | `test_patients.py` (17) y `test_api.py` (10); regresión total: 177 pruebas, 0 fallidas |
+| Entregables | `OrthoimagenDental.exe` v1.1 y `docs/manual/Manual_Orthoimagen_Dental.pdf` |
+| Estado | Cerrado y etiquetado (v1.1.0). |
+
 ## 3. Ambigüedades y su resolución
 
 | Requerimiento | Ambigüedad | Resolución del equipo | Confirmado por el profesor |
@@ -89,6 +101,7 @@ Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de rev
 | RF-02 | "Mismo horario": ¿hora de inicio o traslape por duración? | Misma hora de inicio (supuesto de la bitácora 6.4). | Pendiente |
 | RF-07 | El documento no define el horario de atención ni la duración de cada bloque | Supuesto: bloques de 60 min de 09:00 a 18:00, configurables en `config/settings.py`. | Pendiente |
 | RF-04 y RF-05 | No se define la diferencia entre cancelar y eliminar | Cancelar = estatus "Cancelada" (CA-17); eliminar = borrar el registro en la BD (CA-24). | Pendiente |
+| A2 | El documento no dice cómo llega al sistema un paciente nuevo, aunque el RNF de usabilidad habla de "un paciente nuevo" y HU-01/HU-02 suponen que el paciente ya existe | Se propone RF-12: auto-registro del paciente y alta y accesos desde recepción, sin duplicar expedientes (el teléfono es único). | Pendiente |
 | A1 | Totales distintos entre ChatGPT y el equipo (RNF: 9 vs. sin dato; CA: 57 vs. 53) | El documento final (§6.1 y §6.2) consolida 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de revisión). | n/a |
 
 ## 4. Registro de cambios al plan
@@ -101,3 +114,4 @@ Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de rev
 | 19/11/2026 | Cierre del Incremento 3 (v0.3.0) | Se fija el horario de atención como supuesto (bloques de 60 min, 09:00 a 18:00) porque el documento no lo define; RF-02 se refuerza con un índice único en la BD. | Equipo de desarrollo |
 | 19/11/2026 | Cierre del Incremento 4 (v0.4.0): RF-06, RF-03, RF-04 y RF-05 | Se completa el 100 % de los RF; se agregan `docs/matriz_trazabilidad.md` y `docs/bitacora_ia.md`. | Equipo de desarrollo |
 | 19/11/2026 | Entrega final (v1.0.0): app de escritorio y ejecutable | La interfaz de ventanas cumple el RNF de usabilidad (agendar en 5 pasos) sin agregar funciones fuera de RF-01 a RF-11; usa los mismos módulos que la consola. | Equipo de desarrollo |
+| 19/11/2026 | Versión 1.1 (v1.1.0): RF-12 propuesto, interfaz rediseñada y manual de usuario | Responder qué pasa con un cliente nuevo y con los clientes de siempre sin usuario; la interfaz tkinter se sustituyó por una ventana nativa con diseño profesional. | Equipo de desarrollo (RF-12 pendiente del profesor) |

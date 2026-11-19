@@ -37,6 +37,9 @@ PERMISOS = {
     "modificar_cita": {ROL_PACIENTE, ROL_RECEPCIONISTA},  # HU-04, HU-05
     "cancelar_cita": {ROL_PACIENTE, ROL_RECEPCIONISTA},  # HU-06, HU-07
     "eliminar_cita": {ROL_RECEPCIONISTA},  # HU-08
+    # Extensión v1.1 (RF-12 propuesto): pacientes nuevos y accesos.
+    "registrar_paciente": {ROL_RECEPCIONISTA},
+    "gestionar_accesos": {ROL_RECEPCIONISTA},
 }
 
 MENSAJE_CREDENCIALES_VACIAS = (

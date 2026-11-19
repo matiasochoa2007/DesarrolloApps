@@ -95,8 +95,12 @@ def horario_ocupado(bd, id_odontologo, fecha, hora, excluir_id_cita=None):
     )
 
 
-def consultar_disponibilidad(bd, sesion, id_odontologo, fecha, hoy=None):
+def consultar_disponibilidad(bd, sesion, id_odontologo, fecha, hoy=None,
+                             excluir_id_cita=None):
     """Horarios libres de un dentista en una fecha (HU-12, HU-13).
+
+    `excluir_id_cita` sirve al modificar una cita: su propio horario se
+    muestra como libre para poder conservarlo.
 
     Devuelve {"exito", "mensaje", "libres", "ocupados", "dentista"}.
     La recepcionista también recibe la lista de horarios ocupados; el
@@ -121,7 +125,7 @@ def consultar_disponibilidad(bd, sesion, id_odontologo, fecha, hoy=None):
             resultado["mensaje"] = MENSAJE_DENTISTA_INEXISTENTE
             return resultado
         ocupadas = set(bd.horas_ocupadas(dentista["id_odontologo"],
-                                         str(fecha).strip()))
+                                         str(fecha).strip(), excluir_id_cita))
     except ErrorBaseDatos as error:
         resultado["mensaje"] = error.mensaje
         return resultado

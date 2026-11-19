@@ -168,5 +168,30 @@ class PruebasConsolaIncremento4(unittest.TestCase):
         self.assertNotIn("Eliminar", texto)
 
 
+
+class PruebasConsolaClienteNuevo(unittest.TestCase):
+    def setUp(self):
+        self.temp = BaseTemporal()
+        sembrar_datos_demo(self.temp.bd)
+
+    def tearDown(self):
+        self.temp.limpiar()
+
+    def test_cliente_nuevo_crea_cuenta_desde_la_consola(self):
+        texto = simular(self.temp.bd, [
+            "nuevo", "Sofía", "Lara", "4779990000", "", "sofia.lara",
+            "Sonrisa2030", "Sonrisa2030", "0", "salir",
+        ])
+        self.assertIn("Bienvenido(a), Sofía", texto)
+        self.assertIn("Agendar una cita", texto)
+
+    def test_cliente_nuevo_con_error_vuelve_al_inicio(self):
+        texto = simular(self.temp.bd, [
+            "nuevo", "Sofía", "", "123", "", "sofia.lara", "x", "x", "salir",
+        ])
+        self.assertIn("apellidos", texto)
+        self.assertIn("Hasta luego.", texto)
+
+
 if __name__ == "__main__":
     unittest.main()

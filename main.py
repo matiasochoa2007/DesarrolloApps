@@ -28,6 +28,7 @@ from modules.auth_roles import (
 from modules.availability import consultar_disponibilidad, fecha_de_manana
 from modules.data_access import BaseDatos, ErrorBaseDatos
 from modules.demo_data import sembrar_datos_demo
+from modules.patients import crear_cuenta_paciente
 from modules.service_catalog import consultar_catalogo, formatear_servicio
 
 TITULO = "=== Orthoimagen Dental · Sistema de citas ==="
@@ -50,10 +51,18 @@ class Consola:
     def ejecutar(self):
         self.salida(TITULO)
         while True:
-            usuario = self.entrada("\nUsuario (o 'salir'): ").strip()
+            usuario = self.entrada(
+                "\nUsuario ('nuevo' para crear cuenta, 'salir' para terminar): "
+            ).strip()
             if usuario.lower() == "salir":
                 self.salida("Hasta luego.")
                 return
+            if usuario.lower() == "nuevo":
+                self.crear_cuenta()
+                if self.sesion is not None:
+                    self.menu()
+                    self.sesion = None
+                continue
             contrasena = self.leer_contrasena("Contraseña: ")
             resultado = iniciar_sesion(self.bd, usuario, contrasena)
             if not resultado["exito"]:
@@ -66,6 +75,23 @@ class Consola:
             )
             self.menu()
             self.sesion = None
+
+    def crear_cuenta(self):
+        """Paciente nuevo: captura sus datos y crea su cuenta (RF-12 propuesto)."""
+        self.salida("\n--- Crear cuenta de paciente ---")
+        datos = {
+            "nombre": self.entrada("Nombre(s): "),
+            "apellidos": self.entrada("Apellidos: "),
+            "telefono": self.entrada("Teléfono (10 dígitos): "),
+            "correo": self.entrada("Correo (opcional): "),
+            "usuario": self.entrada("Usuario: "),
+        }
+        datos["contrasena"] = self.leer_contrasena("Contraseña (mín. 8, letras y números): ")
+        datos["confirmacion"] = self.leer_contrasena("Confirme la contraseña: ")
+        resultado = crear_cuenta_paciente(self.bd, datos)
+        self.salida(resultado["mensaje"])
+        if resultado["exito"]:
+            self.sesion = iniciar_sesion(self.bd, datos["usuario"], datos["contrasena"])["sesion"]
 
     def opciones(self):
         """Opciones del menú según el rol de la sesión: (texto, acción)."""

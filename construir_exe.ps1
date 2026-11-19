@@ -10,7 +10,7 @@ Set-Location $PSScriptRoot
 if (-not (Test-Path ".venv-build")) {
     py -m venv .venv-build
 }
-& .\.venv-build\Scripts\python.exe -m pip install --quiet --upgrade pyinstaller
+& .\.venv-build\Scripts\python.exe -m pip install --quiet --upgrade pyinstaller -r requirements.txt
 
 # Las pruebas deben pasar antes de empaquetar.
 py -m unittest discover
@@ -21,6 +21,7 @@ if ($LASTEXITCODE -ne 0) { throw "Hay pruebas fallidas; no se genera el .exe." }
     --name OrthoimagenDental `
     --icon assets\orthoimagen.ico `
     --add-data "assets\orthoimagen.ico;assets" `
+    --add-data "interfaz\web;interfaz\web" `
     app_escritorio.py
 
 Write-Host "Listo: dist\OrthoimagenDental.exe"
