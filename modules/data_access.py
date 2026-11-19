@@ -10,6 +10,7 @@ Tablas (diseño mínimo de la práctica de persistencia):
 """
 
 import sqlite3
+import threading
 
 from config import settings
 
@@ -108,6 +109,7 @@ class BaseDatos:
     def __init__(self, ruta=None):
         self.ruta = str(ruta if ruta is not None else settings.RUTA_BD)
         self._conexion = None
+        self.candado = threading.RLock()
 
     # -- Conexión -----------------------------------------------------------
 
@@ -115,7 +117,9 @@ class BaseDatos:
         """Abre la conexión si no está abierta. Lanza ErrorBaseDatos si falla."""
         if self._conexion is None:
             try:
-                conexion = sqlite3.connect(self.ruta)
+                # check_same_thread=False: la interfaz gráfica atiende cada
+                # llamada en su propio hilo; el candado serializa el acceso.
+                conexion = sqlite3.connect(self.ruta, check_same_thread=False)
                 conexion.row_factory = sqlite3.Row
                 conexion.execute("PRAGMA foreign_keys = ON")
             except sqlite3.Error as error:
@@ -157,7 +161,7 @@ class BaseDatos:
         """Ejecuta una escritura, confirma y devuelve el cursor."""
         conexion = self.conectar()
         try:
-            with conexion:
+            with self.candado, conexion:
                 return conexion.execute(sql, parametros)
         except sqlite3.IntegrityError as error:
             raise ErrorIntegridad(str(error)) from error
@@ -168,7 +172,8 @@ class BaseDatos:
         """Ejecuta una lectura y devuelve una lista de diccionarios."""
         conexion = self.conectar()
         try:
-            filas = conexion.execute(sql, parametros).fetchall()
+            with self.candado:
+                filas = conexion.execute(sql, parametros).fetchall()
         except sqlite3.Error as error:
             raise ErrorBaseDatos(str(error)) from error
         return [dict(fila) for fila in filas]
@@ -197,6 +202,44 @@ class BaseDatos:
         return self._consultar(
             "SELECT * FROM paciente ORDER BY apellidos, nombre"
         )
+
+    def buscar_paciente_por_telefono(self, telefono):
+        return self._consultar_uno(
+            "SELECT * FROM paciente WHERE telefono = ?", (telefono,)
+        )
+
+    def listar_pacientes_con_acceso(self):
+        """Pacientes con el nombre de usuario de su acceso, si lo tienen."""
+        return self._consultar(
+            "SELECT p.*, u.id_usuario, u.nombre_usuario FROM paciente p "
+            "LEFT JOIN usuario u ON u.id_paciente = p.id_paciente "
+            "ORDER BY p.apellidos, p.nombre"
+        )
+
+    def insertar_paciente_con_usuario(self, nombre, apellidos, telefono,
+                                      correo, fecha_nacimiento,
+                                      nombre_usuario, contrasena_hash):
+        """Guarda el paciente y su usuario en una sola transacción: si el
+        usuario falla (p. ej. duplicado), tampoco queda el paciente."""
+        conexion = self.conectar()
+        try:
+            with self.candado, conexion:
+                cursor = conexion.execute(
+                    "INSERT INTO paciente (nombre, apellidos, telefono, correo, "
+                    "fecha_nacimiento) VALUES (?, ?, ?, ?, ?)",
+                    (nombre, apellidos, telefono, correo, fecha_nacimiento),
+                )
+                id_paciente = cursor.lastrowid
+                conexion.execute(
+                    "INSERT INTO usuario (nombre_usuario, contrasena_hash, rol, "
+                    "id_paciente) VALUES (?, ?, 'paciente', ?)",
+                    (nombre_usuario, contrasena_hash, id_paciente),
+                )
+        except sqlite3.IntegrityError as error:
+            raise ErrorIntegridad(str(error)) from error
+        except sqlite3.Error as error:
+            raise ErrorBaseDatos(str(error)) from error
+        return id_paciente
 
     # -- Odontólogos ----------------------------------------------------------
 
@@ -254,6 +297,18 @@ class BaseDatos:
         return self._consultar_uno(
             "SELECT * FROM usuario WHERE nombre_usuario = ?", (nombre_usuario,)
         )
+
+    def obtener_usuario_de_paciente(self, id_paciente):
+        return self._consultar_uno(
+            "SELECT * FROM usuario WHERE id_paciente = ?", (id_paciente,)
+        )
+
+    def actualizar_contrasena(self, id_usuario, contrasena_hash):
+        cursor = self._ejecutar(
+            "UPDATE usuario SET contrasena_hash = ? WHERE id_usuario = ?",
+            (contrasena_hash, id_usuario),
+        )
+        return cursor.rowcount
 
     def contar_usuarios(self):
         return self._consultar_uno("SELECT COUNT(*) AS total FROM usuario")["total"]
