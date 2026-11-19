@@ -1,0 +1,3 @@
+# Solo para la app de escritorio (app_escritorio.py).
+# Los módulos, la consola y las pruebas usan únicamente la biblioteca estándar.
+pywebview>=5.0

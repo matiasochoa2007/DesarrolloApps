@@ -31,3 +31,7 @@ DURACION_BLOQUE_MIN = 60
 
 # Iteraciones de PBKDF2-SHA256 para el hash de contraseñas (RF-11).
 ITERACIONES_HASH = 120_000
+
+# Muestra en la pantalla de acceso los botones de usuarios de demostración.
+# Para una instalación real: variable de entorno ORTHOIMAGEN_DEMO=0.
+MODO_DEMO = os.environ.get("ORTHOIMAGEN_DEMO", "1") != "0"
