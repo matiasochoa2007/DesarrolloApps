@@ -54,7 +54,7 @@ def main():
     api = ApiOrthoimagen(bd, modo_demo=settings.MODO_DEMO)
     webview.create_window(
         TITULO, str(ruta_interfaz()), js_api=api,
-        width=1380, height=880, min_size=(1100, 700),
+        width=1280, height=780, min_size=(1024, 640), maximized=True,
         background_color="#072d28", text_select=True,
     )
     try:
