@@ -6,6 +6,7 @@ Requerimientos:
     RF-01 registrar (HU-01, HU-02) · CA-01 a CA-06
     RF-03 modificar (HU-04, HU-05) · CA-10 a CA-16
     RF-04 cancelar (HU-06, HU-07) · CA-17 a CA-23
+    RF-05 eliminar, solo recepción (HU-08) · CA-24 a CA-26
 Reutiliza CA-45 a CA-47 (M6) y la regla de RF-02 (M3).
 
 Datos de una cita (diccionario):
@@ -56,6 +57,10 @@ MENSAJE_CITA_YA_CANCELADA = "Error: La cita {id_cita} ya está cancelada."
 MENSAJE_CITA_CANCELADA = (
     "Cita {id_cita} cancelada ({fecha} a las {hora} con {dentista}). "
     "El horario quedó libre."
+)
+MENSAJE_CITA_ELIMINADA = (
+    "Cita {id_cita} eliminada definitivamente ({fecha} a las {hora}, "
+    "paciente {paciente})."
 )
 MENSAJE_CAMBIO_DENTISTA_RECEPCION = (
     "Error: Para cambiar de dentista solicítelo en recepción."
@@ -258,3 +263,21 @@ def cancelar_cita(bd, sesion, id_cita):
     return _resultado(True, MENSAJE_CITA_CANCELADA.format(**cita),
                       id_cita=cita["id_cita"])
 
+
+def eliminar_cita(bd, sesion, id_cita):
+    """Elimina definitivamente una cita; solo la recepcionista (HU-08).
+
+    Borra el registro de la base (CA-24); también se pueden eliminar citas
+    canceladas (CA-25). Otros roles reciben un mensaje claro (CA-26).
+
+    Devuelve {"exito", "mensaje", "id_cita"}.
+    """
+    try:
+        cita, error = obtener_cita_autorizada(bd, sesion, id_cita, "eliminar_cita")
+        if error:
+            return _resultado(False, error, id_cita=None)
+        bd.eliminar_cita(cita["id_cita"])
+    except ErrorBaseDatos as error_bd:
+        return _resultado(False, error_bd.mensaje, id_cita=None)
+    return _resultado(True, MENSAJE_CITA_ELIMINADA.format(**cita),
+                      id_cita=cita["id_cita"])

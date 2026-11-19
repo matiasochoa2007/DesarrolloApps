@@ -308,6 +308,11 @@ class BaseDatos:
         )
         return cursor.rowcount
 
+    def eliminar_cita(self, id_cita):
+        """Borra el registro de la cita (RF-05). Devuelve las filas borradas."""
+        cursor = self._ejecutar("DELETE FROM cita WHERE id_cita = ?", (id_cita,))
+        return cursor.rowcount
+
     def consultar_citas(self, id_paciente=None, id_odontologo=None, fecha=None,
                         incluir_canceladas=True):
         """Citas con detalle, filtradas por paciente, dentista o día (RF-06).

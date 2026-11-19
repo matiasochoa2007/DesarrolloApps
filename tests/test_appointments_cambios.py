@@ -13,6 +13,7 @@ from modules.appointments import (
     MENSAJE_CAMBIO_DENTISTA_RECEPCION,
     MENSAJE_CITA_AJENA,
     cancelar_cita,
+    eliminar_cita,
     modificar_cita,
     registrar_cita,
 )
@@ -200,6 +201,47 @@ class PruebasCancelarRecepcionHU07(EscenarioCambios):
     def test_dentista_no_cancela(self):
         self.assertIn("no tiene permiso",
                       cancelar_cita(self.bd, self.dentista, self.cita1)["mensaje"])
+
+
+class PruebasEliminarHU08(EscenarioCambios):
+    """RF-05: solo la recepcionista elimina; se borra el registro."""
+
+    def test_ca24_recepcionista_elimina_y_se_borra_el_registro(self):
+        resultado = eliminar_cita(self.bd, self.recepcion, self.cita1)
+        self.assertTrue(resultado["exito"], resultado["mensaje"])
+        self.assertIn("eliminada definitivamente", resultado["mensaje"])
+        self.assertIsNone(self.bd.obtener_cita(self.cita1))
+        self.assertIsNone(self.temp.reabrir().obtener_cita(self.cita1))
+        self.assertIn("10:00", self.libres())
+
+    def test_ca25_eliminar_una_cita_cancelada(self):
+        cancelar_cita(self.bd, self.recepcion, self.cita2)
+        resultado = eliminar_cita(self.bd, self.recepcion, self.cita2)
+        self.assertTrue(resultado["exito"], resultado["mensaje"])
+        restantes = self.bd.consultar_citas()
+        self.assertEqual([c["id_cita"] for c in restantes], [self.cita1])
+
+    def test_ca26_paciente_o_dentista_no_pueden_eliminar(self):
+        for sesion in (self.paciente1, self.dentista):
+            resultado = eliminar_cita(self.bd, sesion, self.cita1)
+            self.assertFalse(resultado["exito"])
+            self.assertIn("no tiene permiso", resultado["mensaje"])
+        self.assertIsNotNone(self.bd.obtener_cita(self.cita1))
+
+    def test_ca26_eliminar_cita_inexistente(self):
+        resultado = eliminar_cita(self.bd, self.recepcion, "999")
+        self.assertFalse(resultado["exito"])
+        self.assertIn("no existe", resultado["mensaje"])
+
+    def test_ca23_cancelar_una_cita_ya_eliminada(self):
+        eliminar_cita(self.bd, self.recepcion, self.cita1)
+        resultado = cancelar_cita(self.bd, self.paciente1, self.cita1)
+        self.assertFalse(resultado["exito"])
+        self.assertIn("no existe", resultado["mensaje"])
+
+    def test_base_no_disponible(self):
+        resultado = eliminar_cita(BaseDatos(ruta_no_disponible()), self.recepcion, 1)
+        self.assertIn("base de datos", resultado["mensaje"])
 
 
 if __name__ == "__main__":
