@@ -12,6 +12,7 @@ from datetime import date
 from modules.appointments import (
     MENSAJE_CAMBIO_DENTISTA_RECEPCION,
     MENSAJE_CITA_AJENA,
+    cancelar_cita,
     modificar_cita,
     registrar_cita,
 )
@@ -136,6 +137,69 @@ class PruebasModificarRecepcionHU05(EscenarioCambios):
         resultado = modificar_cita(BaseDatos(ruta_no_disponible()), self.recepcion,
                                    self.cita1, {"hora": "12:00"}, hoy=HOY)
         self.assertIn("base de datos", resultado["mensaje"])
+
+
+class PruebasCancelarPacienteHU06(EscenarioCambios):
+    def test_ca17_cancelar_cambia_estatus_y_libera_horario(self):
+        resultado = cancelar_cita(self.bd, self.paciente1, self.cita1)
+        self.assertTrue(resultado["exito"], resultado["mensaje"])
+        self.assertIn("cancelada", resultado["mensaje"])
+        cita = self.bd.obtener_cita(self.cita1)
+        self.assertEqual(cita["estatus"], "Cancelada")  # se conserva en historial
+        self.assertIn("10:00", self.libres())
+
+    def test_ca18_cancelar_la_unica_cita(self):
+        unica = self.registrar({"rol": "paciente",
+                                "id_paciente": self.bd.insertar_paciente("Eva", "Soto", "1")},
+                               "15:00", dentista=self.o2)
+        resultado = cancelar_cita(self.bd, self.recepcion, unica)
+        self.assertTrue(resultado["exito"])
+        self.assertEqual(self.libres(self.o2), self.libres(self.o2, OTRA_FECHA))
+
+    def test_ca19_cancelar_una_cita_ya_cancelada(self):
+        cancelar_cita(self.bd, self.paciente1, self.cita1)
+        resultado = cancelar_cita(self.bd, self.paciente1, self.cita1)
+        self.assertFalse(resultado["exito"])
+        self.assertIn("ya está cancelada", resultado["mensaje"])
+
+    def test_ca20_paciente_no_cancela_cita_ajena(self):
+        resultado = cancelar_cita(self.bd, self.paciente1, self.cita2)
+        self.assertFalse(resultado["exito"])
+        self.assertEqual(resultado["mensaje"], MENSAJE_CITA_AJENA)
+        self.assertEqual(self.bd.obtener_cita(self.cita2)["estatus"], "Programada")
+
+
+class PruebasCancelarRecepcionHU07(EscenarioCambios):
+    def test_ca21_recepcionista_cancela_cualquier_cita(self):
+        resultado = cancelar_cita(self.bd, self.recepcion, self.cita2)
+        self.assertTrue(resultado["exito"], resultado["mensaje"])
+        self.assertEqual(self.bd.obtener_cita(self.cita2)["estatus"], "Cancelada")
+
+    def test_ca22_y_ca40_reservar_el_horario_recien_cancelado(self):
+        cancelar_cita(self.bd, self.recepcion, self.cita1)
+        self.assertIn("10:00", self.libres())  # CA-40
+        nueva = self.registrar(self.paciente2, "10:00")  # CA-22
+        self.assertEqual(self.bd.obtener_cita(nueva)["estatus"], "Programada")
+
+    def test_ca15_mover_a_horario_liberado_por_cancelacion(self):
+        cancelar_cita(self.bd, self.recepcion, self.cita2)
+        resultado = self.modificar(self.paciente1, self.cita1, hora="11:00")
+        self.assertTrue(resultado["exito"], resultado["mensaje"])
+
+    def test_ca23_cancelar_cita_inexistente(self):
+        resultado = cancelar_cita(self.bd, self.recepcion, 999)
+        self.assertFalse(resultado["exito"])
+        self.assertIn("no existe", resultado["mensaje"])
+
+    def test_cita_cancelada_no_se_puede_modificar(self):
+        cancelar_cita(self.bd, self.recepcion, self.cita1)
+        resultado = self.modificar(self.recepcion, self.cita1, hora="15:00")
+        self.assertFalse(resultado["exito"])
+        self.assertIn("Cancelada", resultado["mensaje"])
+
+    def test_dentista_no_cancela(self):
+        self.assertIn("no tiene permiso",
+                      cancelar_cita(self.bd, self.dentista, self.cita1)["mensaje"])
 
 
 if __name__ == "__main__":

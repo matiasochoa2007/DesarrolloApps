@@ -2,8 +2,11 @@
 
 Registra citas usando M6 (mensajes), M3 (disponibilidad) y M7 (datos).
 
-Requerimiento: RF-01 (HU-01 paciente, HU-02 recepcionista).
-Criterios: CA-01 a CA-06; reutiliza CA-45 a CA-47 (M6) y RF-02 (M3).
+Requerimientos:
+    RF-01 registrar (HU-01, HU-02) · CA-01 a CA-06
+    RF-03 modificar (HU-04, HU-05) · CA-10 a CA-16
+    RF-04 cancelar (HU-06, HU-07) · CA-17 a CA-23
+Reutiliza CA-45 a CA-47 (M6) y la regla de RF-02 (M3).
 
 Datos de una cita (diccionario):
     fecha (AAAA-MM-DD), hora (HH:MM), dentista (id_odontologo),
@@ -48,6 +51,11 @@ MENSAJE_CITA_AJENA = (
 )
 MENSAJE_CITA_NO_MODIFICABLE = (
     "Error: La cita {id_cita} está {estatus} y ya no se puede modificar."
+)
+MENSAJE_CITA_YA_CANCELADA = "Error: La cita {id_cita} ya está cancelada."
+MENSAJE_CITA_CANCELADA = (
+    "Cita {id_cita} cancelada ({fecha} a las {hora} con {dentista}). "
+    "El horario quedó libre."
 )
 MENSAJE_CAMBIO_DENTISTA_RECEPCION = (
     "Error: Para cambiar de dentista solicítelo en recepción."
@@ -223,3 +231,30 @@ def modificar_cita(bd, sesion, id_cita, cambios, hoy=None):
 
     return _resultado(True, MENSAJE_CITA_MODIFICADA.format(**actualizada),
                       id_cita=actualizada["id_cita"])
+
+
+def cancelar_cita(bd, sesion, id_cita):
+    """Cancela una cita cambiando su estatus a "Cancelada" (HU-06, HU-07).
+
+    La cita se conserva en el historial y su horario queda libre (CA-17,
+    CA-21, CA-22). Ambigüedad resuelta en el plan: cancelar = estatus;
+    eliminar = borrar el registro (RF-05).
+
+    Devuelve {"exito", "mensaje", "id_cita"}.
+    """
+    try:
+        cita, error = obtener_cita_autorizada(bd, sesion, id_cita, "cancelar_cita")
+        if error:
+            return _resultado(False, error, id_cita=None)
+        if cita["estatus"] == ESTATUS_CANCELADA:
+            return _resultado(False, MENSAJE_CITA_YA_CANCELADA.format(**cita),
+                              id_cita=cita["id_cita"])
+        if cita["estatus"] == ESTATUS_ATENDIDA:
+            return _resultado(False, MENSAJE_CITA_NO_MODIFICABLE.format(**cita),
+                              id_cita=cita["id_cita"])
+        bd.actualizar_estatus(cita["id_cita"], ESTATUS_CANCELADA)
+    except ErrorBaseDatos as error_bd:
+        return _resultado(False, error_bd.mensaje, id_cita=None)
+    return _resultado(True, MENSAJE_CITA_CANCELADA.format(**cita),
+                      id_cita=cita["id_cita"])
+
