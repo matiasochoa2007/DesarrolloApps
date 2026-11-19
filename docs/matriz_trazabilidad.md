@@ -5,6 +5,7 @@ código que lo implementa, los commits y la prueba que lo demuestra.
 
 Comando de regresión (desde la raíz del repositorio): `py -m unittest discover -v`
 Resultado al cierre de v0.4.0: **148 pruebas ejecutadas, 0 fallidas** (Windows 11, Python 3.14).
+Resultado en la entrega final v1.0.0: **157 pruebas ejecutadas, 0 fallidas**.
 
 ## Requerimientos funcionales
 
@@ -35,11 +36,10 @@ Resultado al cierre de v0.4.0: **148 pruebas ejecutadas, 0 fallidas** (Windows 1
 | `tests/test_agenda.py` | M4 | 18 |
 | `tests/test_appointments_cambios.py` | M2 (modificar, cancelar, eliminar) | 28 |
 | `tests/test_main.py` | Consola de extremo a extremo | 10 |
-| **Total** | | **148** |
+| `tests/test_app_escritorio.py` | App de escritorio de extremo a extremo | 9 |
+| **Total** | | **157** |
 
 ## Nota sobre los criterios de aceptación
 
-El documento de especificaciones (sección 6.2) todavía no está guardado en `docs/`. La relación
-CA → prueba se tomó de las pruebas mínimas del plan de incrementos. Antes de la entrega final, el
-equipo debe subir la especificación a `docs/` y confirmar que el texto de cada CA coincide con su
-prueba; en particular CA-02, CA-05, CA-25 y CA-37, cuyo detalle no aparece en el plan.
+El texto de cada CA está en [especificaciones.md](especificaciones.md) (sección 5) y cada prueba lleva
+el número de CA en su nombre (por ejemplo `test_ca24_recepcionista_elimina...`).

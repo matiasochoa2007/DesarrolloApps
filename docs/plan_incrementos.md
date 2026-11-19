@@ -5,8 +5,8 @@
 **Última actualización:** 19 de noviembre de 2026
 **Avance global:** 100 % (11 de 11 RF publicados en GitHub con tag)
 
-> **Fuente única del plan:** el documento de especificaciones del proyecto (secciones 5, 6.1, 6.2, 6.3 y 6.4).
-> Debe guardarse en `docs/` con un commit propio. Todo lo que no aparece ahí se registra como ambigüedad.
+> **Fuente única del plan:** el documento de especificaciones del proyecto (secciones 5, 6.1, 6.2, 6.3 y 6.4),
+> consolidado en [especificaciones.md](especificaciones.md). Todo lo que no aparece ahí se registra como ambigüedad.
 >
 > Registros relacionados: [matriz de trazabilidad](matriz_trazabilidad.md) · [bitácora de IA](bitacora_ia.md)
 
@@ -100,3 +100,4 @@ Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de rev
 | 19/11/2026 | Cierre del Incremento 2 (v0.2.0) | Roles definidos como paciente, recepcionista y dentista (HU-01 a HU-16); se descarta el rol "Administrador" de la práctica de persistencia porque no aparece en RF-01 a RF-11. | Equipo de desarrollo |
 | 19/11/2026 | Cierre del Incremento 3 (v0.3.0) | Se fija el horario de atención como supuesto (bloques de 60 min, 09:00 a 18:00) porque el documento no lo define; RF-02 se refuerza con un índice único en la BD. | Equipo de desarrollo |
 | 19/11/2026 | Cierre del Incremento 4 (v0.4.0): RF-06, RF-03, RF-04 y RF-05 | Se completa el 100 % de los RF; se agregan `docs/matriz_trazabilidad.md` y `docs/bitacora_ia.md`. | Equipo de desarrollo |
+| 19/11/2026 | Entrega final (v1.0.0): app de escritorio y ejecutable | La interfaz de ventanas cumple el RNF de usabilidad (agendar en 5 pasos) sin agregar funciones fuera de RF-01 a RF-11; usa los mismos módulos que la consola. | Equipo de desarrollo |
