@@ -1,7 +1,7 @@
 """Pruebas de M6 Validación y mensajes.
 
-Ejecutar desde la carpeta orthoimagen_dental/:
-    python -m unittest tests.test_validation_messages -v
+Ejecutar desde la raíz del repositorio (DesarrolloApps/):
+    py -m unittest tests.test_validation_messages -v
 """
 
 import unittest
