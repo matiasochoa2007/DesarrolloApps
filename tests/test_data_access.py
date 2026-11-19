@@ -109,5 +109,55 @@ class PruebasBaseNoDisponible(unittest.TestCase):
             bd.listar_servicios()
 
 
+class PruebasCitas(unittest.TestCase):
+    def setUp(self):
+        self.temp = BaseTemporal()
+        bd = self.temp.bd
+        self.p = bd.insertar_paciente("Ana", "Pérez", "4771112233")
+        self.o1 = bd.insertar_odontologo("Laura", "Peña")
+        self.o2 = bd.insertar_odontologo("Jorge", "Ruiz")
+        self.s = bd.insertar_servicio("Limpieza dental", 45)
+
+    def tearDown(self):
+        self.temp.limpiar()
+
+    def test_guardar_y_leer_cita_con_detalle(self):
+        id_cita = self.temp.bd.insertar_cita("2030-01-15", "10:00", self.p,
+                                             self.o1, self.s, "Dolor")
+        cita = self.temp.reabrir().obtener_cita(id_cita)
+        self.assertEqual(cita["estatus"], "Programada")
+        self.assertEqual(cita["paciente"], "Ana Pérez")
+        self.assertEqual(cita["dentista"], "Laura Peña")
+        self.assertEqual(cita["servicio"], "Limpieza dental")
+
+    def test_rf02_indice_unico_mismo_dentista_misma_hora(self):
+        self.temp.bd.insertar_cita("2030-01-15", "10:00", self.p, self.o1, self.s)
+        with self.assertRaises(ErrorIntegridad):
+            self.temp.bd.insertar_cita("2030-01-15", "10:00", self.p, self.o1, self.s)
+
+    def test_rf02_otro_dentista_misma_hora_permitido(self):
+        self.temp.bd.insertar_cita("2030-01-15", "10:00", self.p, self.o1, self.s)
+        self.temp.bd.insertar_cita("2030-01-15", "10:00", self.p, self.o2, self.s)
+        self.assertEqual(self.temp.bd.horas_ocupadas(self.o2, "2030-01-15"), ["10:00"])
+
+    def test_rf02_cita_cancelada_no_ocupa_horario(self):
+        self.temp.bd.insertar_cita("2030-01-15", "10:00", self.p, self.o1, self.s,
+                                   estatus="Cancelada")
+        self.assertEqual(self.temp.bd.horas_ocupadas(self.o1, "2030-01-15"), [])
+        self.temp.bd.insertar_cita("2030-01-15", "10:00", self.p, self.o1, self.s)
+
+    def test_horas_ocupadas_excluye_una_cita(self):
+        id_cita = self.temp.bd.insertar_cita("2030-01-15", "11:00", self.p,
+                                             self.o1, self.s)
+        self.assertEqual(
+            self.temp.bd.horas_ocupadas(self.o1, "2030-01-15", excluir_id_cita=id_cita),
+            [],
+        )
+
+    def test_cita_con_referencia_inexistente(self):
+        with self.assertRaises(ErrorIntegridad):
+            self.temp.bd.insertar_cita("2030-01-15", "10:00", 99, self.o1, self.s)
+
+
 if __name__ == "__main__":
     unittest.main()

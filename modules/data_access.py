@@ -68,7 +68,18 @@ CREATE TABLE IF NOT EXISTS cita (
     id_odontologo INTEGER NOT NULL REFERENCES odontologo (id_odontologo),
     id_servicio   INTEGER NOT NULL REFERENCES servicio (id_servicio)
 );
+
+-- RF-02: un dentista no puede tener dos citas activas a la misma hora de
+-- inicio. Las citas canceladas no ocupan el horario.
+CREATE UNIQUE INDEX IF NOT EXISTS ux_cita_odontologo_horario
+    ON cita (id_odontologo, fecha, hora)
+    WHERE estatus <> 'Cancelada';
 """
+
+ESTATUS_PROGRAMADA = "Programada"
+ESTATUS_REPROGRAMADA = "Reprogramada"
+ESTATUS_CANCELADA = "Cancelada"
+ESTATUS_ATENDIDA = "Atendida"
 
 
 class ErrorBaseDatos(Exception):
@@ -246,3 +257,49 @@ class BaseDatos:
 
     def contar_usuarios(self):
         return self._consultar_uno("SELECT COUNT(*) AS total FROM usuario")["total"]
+
+    # -- Citas (RF-01, RF-02) --------------------------------------------------
+
+    def insertar_cita(self, fecha, hora, id_paciente, id_odontologo,
+                      id_servicio, motivo=None, estatus=ESTATUS_PROGRAMADA):
+        """Guarda una cita. Lanza ErrorIntegridad si el dentista ya tiene una
+        cita activa a esa hora (índice único de RF-02)."""
+        cursor = self._ejecutar(
+            "INSERT INTO cita (fecha, hora, motivo, estatus, id_paciente, "
+            "id_odontologo, id_servicio) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (fecha, hora, motivo, estatus, id_paciente, id_odontologo,
+             id_servicio),
+        )
+        return cursor.lastrowid
+
+    def obtener_cita(self, id_cita):
+        """Devuelve la cita con los nombres de paciente, dentista y servicio."""
+        return self._consultar_uno(
+            _SELECT_CITA_DETALLE + " WHERE c.id_cita = ?", (id_cita,)
+        )
+
+    def horas_ocupadas(self, id_odontologo, fecha, excluir_id_cita=None):
+        """Horas de inicio con cita activa (no cancelada) del dentista ese día.
+
+        `excluir_id_cita` permite ignorar una cita, por ejemplo la que se está
+        modificando, para que no choque consigo misma.
+        """
+        filas = self._consultar(
+            "SELECT hora FROM cita WHERE id_odontologo = ? AND fecha = ? "
+            "AND estatus <> ? AND id_cita IS NOT ? ORDER BY hora",
+            (id_odontologo, fecha, ESTATUS_CANCELADA, excluir_id_cita),
+        )
+        return [fila["hora"] for fila in filas]
+
+
+_SELECT_CITA_DETALLE = """
+SELECT c.id_cita, c.fecha, c.hora, c.motivo, c.estatus,
+       c.id_paciente, c.id_odontologo, c.id_servicio,
+       p.nombre || ' ' || p.apellidos AS paciente,
+       o.nombre || ' ' || o.apellidos AS dentista,
+       s.nombre AS servicio
+FROM cita c
+JOIN paciente p   ON p.id_paciente = c.id_paciente
+JOIN odontologo o ON o.id_odontologo = c.id_odontologo
+JOIN servicio s   ON s.id_servicio = c.id_servicio
+"""
