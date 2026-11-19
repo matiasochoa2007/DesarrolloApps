@@ -6,6 +6,7 @@ código que lo implementa, los commits y la prueba que lo demuestra.
 Comando de regresión (desde la raíz del repositorio): `py -m unittest discover -v`
 Resultado al cierre de v0.4.0: **148 pruebas ejecutadas, 0 fallidas** (Windows 11, Python 3.14).
 Resultado en la entrega final v1.0.0: **157 pruebas ejecutadas, 0 fallidas**.
+Resultado en la versión 1.1 (v1.1.0): **177 pruebas ejecutadas, 0 fallidas**.
 
 ## Requerimientos funcionales
 
@@ -22,6 +23,7 @@ Resultado en la entrega final v1.0.0: **157 pruebas ejecutadas, 0 fallidas**.
 | RF-03 / HU-04, HU-05 | Req. §5; HU §6.1; CA §6.2 | 4 | M2 `modules/appointments.py` | af405c2 | v0.4.0 | `test_appointments_cambios.py`: CA-10 a CA-16 | Terminado |
 | RF-04 / HU-06, HU-07 | Req. §5; HU §6.1; CA §6.2 | 4 | M2 `modules/appointments.py` | f051da9 | v0.4.0 | `test_appointments_cambios.py`: CA-17 a CA-23; CA-40 diferido | Terminado |
 | RF-05 / HU-08 | Req. §5; HU §6.1; CA §6.2 | 4 | M2 `modules/appointments.py` | 4f28be2 | v0.4.0 | `test_appointments_cambios.py`: CA-24, CA-25, CA-26 | Terminado |
+| RF-12 (propuesto) | especificaciones.md §2.1 | 1.1 | M8 `modules/patients.py`, `interfaz/api.py`, `interfaz/web/`, `main.py` | 769ca67, dac9a4c, f1d9524, 13c3a86 | v1.1.0 | `test_patients.py`: CA-P1 a CA-P5; `test_api.py` y `test_main.py`: cliente nuevo de extremo a extremo | Terminado; pendiente de aprobación |
 
 ## Pruebas por archivo
 
@@ -35,9 +37,10 @@ Resultado en la entrega final v1.0.0: **157 pruebas ejecutadas, 0 fallidas**.
 | `tests/test_appointments.py` | M2 (registro) | 19 |
 | `tests/test_agenda.py` | M4 | 18 |
 | `tests/test_appointments_cambios.py` | M2 (modificar, cancelar, eliminar) | 28 |
-| `tests/test_main.py` | Consola de extremo a extremo | 10 |
-| `tests/test_app_escritorio.py` | App de escritorio de extremo a extremo | 9 |
-| **Total** | | **157** |
+| `tests/test_main.py` | Consola de extremo a extremo | 12 |
+| `tests/test_patients.py` | M8 | 17 |
+| `tests/test_api.py` | Interfaz de escritorio de extremo a extremo | 10 |
+| **Total** | | **177** |
 
 ## Nota sobre los criterios de aceptación
 

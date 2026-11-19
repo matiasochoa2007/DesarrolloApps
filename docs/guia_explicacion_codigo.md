@@ -6,8 +6,8 @@ sus pruebas y respondan las preguntas de control sin mirar.
 
 | Integrante | Partes que explica | Pruebas que debe saber correr |
 |------------|--------------------|-------------------------------|
-| **Matias Ochoa Tirado** | M6 Validación y mensajes, M3 Disponibilidad, M2 Gestión de citas (registrar y modificar), M1 Autenticación y roles | `test_validation_messages`, `test_availability`, `test_appointments`, `test_auth_roles` |
-| **Mateo Javier Ortega Fernández** | M7 Acceso a datos, M5 Catálogo, M4 Consulta de agenda, M2 (cancelar y eliminar), interfaces (`app_escritorio.py`, `main.py`), Git y el `.exe` | `test_data_access`, `test_service_catalog`, `test_agenda`, `test_appointments_cambios`, `test_app_escritorio`, `test_main` |
+| **Matias Ochoa Tirado** | M6 Validación y mensajes, M3 Disponibilidad, M2 Gestión de citas (registrar y modificar), M1 Autenticación y roles, M8 Registro de pacientes | `test_validation_messages`, `test_availability`, `test_appointments`, `test_auth_roles`, `test_patients` |
+| **Mateo Javier Ortega Fernández** | M7 Acceso a datos, M5 Catálogo, M4 Consulta de agenda, M2 (cancelar y eliminar), interfaces (`interfaz/`, `app_escritorio.py`, `main.py`), Git y el `.exe` | `test_data_access`, `test_service_catalog`, `test_agenda`, `test_appointments_cambios`, `test_api`, `test_main` |
 
 Comando para una sola parte: `py -m unittest tests.test_availability -v`
 Comando para todo: `py -m unittest discover -v`
@@ -67,6 +67,14 @@ Ventana → registrar_cita (M2)
 
 **Preguntas de control.** ¿Por qué la misma contraseña genera hashes distintos? → Por la sal. ¿Dónde se decide que un paciente no puede eliminar? → En `PERMISOS["eliminar_cita"]`.
 
+### M8 · `modules/patients.py` (RF-12 propuesto, versión 1.1)
+- `crear_cuenta_paciente`: el paciente nuevo se registra solo; paciente y usuario se guardan **en una sola transacción** (si el usuario está ocupado, no queda un paciente huérfano).
+- El **teléfono es único**: si ya existe, el sistema no duplica el expediente y remite a recepción.
+- `registrar_paciente` (recepción, con o sin acceso) y `gestionar_acceso` (crea el acceso o restablece la contraseña sin cambiar el usuario).
+- Reutiliza M6 (`esta_vacio`, `construir_mensaje_faltantes`) para los campos obligatorios.
+
+**Preguntas de control.** ¿Qué pasa si un cliente de siempre intenta crear cuenta? → El teléfono ya existe y el sistema lo manda a recepción. ¿Por qué RF-12 es "propuesto"? → Porque amplía la especificación y requiere el visto bueno del profesor.
+
 ---
 
 ## Parte de Mateo
@@ -93,7 +101,10 @@ Ventana → registrar_cita (M2)
 **Preguntas de control.** ¿Por qué existen las dos operaciones? → Ambigüedad RF-04/RF-05 resuelta en el plan: cancelar conserva el historial, eliminar depura registros erróneos.
 
 ### Interfaces y entrega
-- `app_escritorio.py`: una pestaña por función según el rol. Agendar tiene los 5 pasos numerados del RNF de usabilidad. Los mensajes de M6 aparecen en la barra inferior: rojo = error, ámbar = aviso, verde = éxito.
+- `app_escritorio.py` abre una ventana nativa (pywebview + WebView2) con la interfaz de `interfaz/web/` (HTML, CSS y JavaScript sin bibliotecas externas).
+- La interfaz llama a `interfaz/api.py`, que solo traduce cada botón a una función de los módulos; ninguna regla vive en el JavaScript. Por eso las pruebas de `test_api.py` cubren la interfaz sin abrir ventanas.
+- Agendar tiene los 5 pasos numerados del RNF de usabilidad. Los mensajes de M6 aparecen como avisos: rojo = error, ámbar = aviso, verde = éxito.
+- `py -m interfaz.servidor_dev` muestra la misma interfaz en el navegador, útil para revisar el diseño.
 - `main.py`: la misma lógica en consola.
 - `construir_exe.ps1`: corre las pruebas y genera el `.exe` con PyInstaller. Cuando corre como `.exe`, la base se guarda junto al ejecutable (`config/settings.py`).
 - Git: una rama por incremento (`incremento-2`, `-3`, `-4`), un commit por tarea con formato `tipo(RF-XX): descripción`, merge a `master` y un tag por incremento (`v0.1.0` a `v0.4.0`, `v1.0.0` para la entrega final).

@@ -21,8 +21,8 @@ reglas de agenda.
 | Recepcionista | Registrar, filtrar, modificar, cancelar y eliminar las citas de cualquier paciente. |
 | Dentista | Consultar su agenda del día. |
 
-Fuera de alcance: pagos en línea, recordatorios, registro de pacientes desde el sistema y rol
-de administrador.
+Fuera de alcance: pagos en línea, recordatorios y rol de administrador. El registro de pacientes
+se agregó en la versión 1.1 como RF-12 propuesto (sección 2.1).
 
 ## 2. Requerimientos funcionales (§5)
 
@@ -39,6 +39,12 @@ de administrador.
 | RF-09 | Guardar los datos en una base SQLite | HU-17 | CA-51 a CA-53 | M7 |
 | RF-10 | Mostrar mensajes de error claros | HU-15 | CA-45 a CA-47 | M6 |
 | RF-11 | Inicio de sesión con roles | HU-16 | CA-48 a CA-50 | M1 |
+
+### 2.1 Requerimiento propuesto en la versión 1.1 (pendiente de aprobación)
+
+| ID | Requerimiento | Criterios | Módulo |
+|----|---------------|-----------|--------|
+| RF-12 | Registrar pacientes nuevos y gestionar sus accesos | CA-P1: un paciente nuevo crea su cuenta con nombre, apellidos, teléfono de 10 dígitos, usuario y contraseña de 8+ caracteres con letras y números, y entra directamente. CA-P2: si el teléfono ya existe, el sistema no duplica el expediente y lo remite a recepción. CA-P3: recepción registra pacientes con o sin acceso. CA-P4: recepción crea el acceso de un paciente existente o restablece su contraseña sin cambiar su usuario. CA-P5: un paciente o dentista no puede registrar pacientes ni gestionar accesos. | M8 |
 
 ## 3. Requerimiento no funcional de referencia
 
@@ -161,8 +167,9 @@ Formato abreviado: caso → resultado esperado. Entre paréntesis, el tipo de pr
 | M5 Catálogo de servicios | `modules/service_catalog.py` | Lista de servicios | RF-08 |
 | M6 Validación y mensajes | `modules/validation_messages.py` | Campos obligatorios y mensajes de error | RF-10 |
 | M7 Acceso a datos | `modules/data_access.py` | Único módulo con SQL; SQLite | RF-09 |
+| M8 Registro de pacientes | `modules/patients.py` | Alta de pacientes, cuentas y accesos | RF-12 (propuesto) |
 
-Interfaces: `app_escritorio.py` (ventanas) y `main.py` (consola). Ninguna contiene reglas de
+Interfaces: `app_escritorio.py` (ventana nativa con la interfaz de `interfaz/web`, que llama a `interfaz/api.py`) y `main.py` (consola). Ninguna contiene reglas de
 negocio: solo capturan datos, llaman a los módulos y muestran sus mensajes.
 
 ## 7. Persistencia (práctica de persistencia)
