@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Secretos y configuración local
+.env
+.env.*
+
+# Base de datos local (se crea al ejecutar main.py)
+data/
+*.db
+*.sqlite3
+
+# Editores y sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
