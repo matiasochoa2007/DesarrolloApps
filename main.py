@@ -11,7 +11,9 @@ módulos y muestra sus mensajes.
 import getpass
 
 from config import settings
-from modules.auth_roles import iniciar_sesion
+from modules.appointments import registrar_cita
+from modules.auth_roles import ROL_PACIENTE, ROL_RECEPCIONISTA, iniciar_sesion
+from modules.availability import consultar_disponibilidad, fecha_de_manana
 from modules.data_access import BaseDatos, ErrorBaseDatos
 from modules.demo_data import sembrar_datos_demo
 from modules.service_catalog import consultar_catalogo, formatear_servicio
@@ -55,7 +57,19 @@ class Consola:
 
     def opciones(self):
         """Opciones del menú según el rol de la sesión: (texto, acción)."""
-        return [("Ver catálogo de servicios", self.ver_catalogo)]
+        rol = self.sesion["rol"]
+        opciones = [("Ver catálogo de servicios", self.ver_catalogo)]
+        if rol == ROL_PACIENTE:
+            opciones += [
+                ("Consultar horarios libres de un dentista", self.ver_disponibilidad),
+                ("Agendar una cita", self.agendar_cita),
+            ]
+        elif rol == ROL_RECEPCIONISTA:
+            opciones += [
+                ("Consultar disponibilidad de un dentista", self.ver_disponibilidad),
+                ("Registrar una cita para un paciente", self.agendar_cita),
+            ]
+        return opciones
 
     def menu(self):
         while True:
@@ -85,6 +99,63 @@ class Consola:
         self.mostrar(resultado)
         for servicio in resultado["servicios"]:
             self.salida(formatear_servicio(servicio))
+
+    # -- Ayudas para capturar datos ---------------------------------------------
+
+    def preguntar(self, texto):
+        return self.entrada(texto).strip()
+
+    def elegir_dentista(self):
+        try:
+            dentistas = self.bd.listar_odontologos()
+        except ErrorBaseDatos as error:
+            self.salida(error.mensaje)
+            return None
+        self.salida("Dentistas:")
+        for d in dentistas:
+            especialidad = f" · {d['especialidad']}" if d["especialidad"] else ""
+            self.salida(f"[{d['id_odontologo']}] {d['nombre']} {d['apellidos']}{especialidad}")
+        return self.preguntar("Número del dentista: ")
+
+    def elegir_paciente(self):
+        try:
+            pacientes = self.bd.listar_pacientes()
+        except ErrorBaseDatos as error:
+            self.salida(error.mensaje)
+            return None
+        self.salida("Pacientes:")
+        for p in pacientes:
+            self.salida(f"[{p['id_paciente']}] {p['nombre']} {p['apellidos']} · {p['telefono']}")
+        return self.preguntar("Número del paciente: ")
+
+    def pedir_fecha(self):
+        return self.preguntar(f"Fecha (AAAA-MM-DD, p. ej. {fecha_de_manana()}): ")
+
+    # -- Disponibilidad y registro (Incremento 3) --------------------------------
+
+    def ver_disponibilidad(self):
+        id_odontologo = self.elegir_dentista()
+        if id_odontologo is None:
+            return
+        resultado = consultar_disponibilidad(self.bd, self.sesion, id_odontologo,
+                                             self.pedir_fecha())
+        self.mostrar(resultado)
+        if resultado["libres"]:
+            self.salida("Horarios libres: " + ", ".join(resultado["libres"]))
+        if resultado["ocupados"]:
+            self.salida("Horarios ocupados: " + ", ".join(resultado["ocupados"]))
+
+    def agendar_cita(self):
+        datos = {}
+        if self.sesion["rol"] == ROL_RECEPCIONISTA:
+            datos["paciente"] = self.elegir_paciente()
+        datos["dentista"] = self.elegir_dentista()
+        datos["fecha"] = self.pedir_fecha()
+        datos["hora"] = self.preguntar("Hora (HH:MM): ")
+        self.ver_catalogo()
+        datos["servicio"] = self.preguntar("Número del servicio: ")
+        datos["motivo"] = self.preguntar("Motivo (opcional): ")
+        self.mostrar(registrar_cita(self.bd, self.sesion, datos))
 
 
 def main():
