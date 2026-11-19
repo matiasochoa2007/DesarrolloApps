@@ -3,10 +3,12 @@
 **Equipo:** Matias Ochoa Tirado y Mateo Javier Ortega Fernández
 **Materia:** Desarrollo de Aplicaciones y Servicios Virtuales · Universidad Iberoamericana León
 **Última actualización:** 19 de noviembre de 2026
-**Avance global:** 63.64 % (7 de 11 RF publicados en GitHub con tag)
+**Avance global:** 100 % (11 de 11 RF publicados en GitHub con tag)
 
 > **Fuente única del plan:** el documento de especificaciones del proyecto (secciones 5, 6.1, 6.2, 6.3 y 6.4).
 > Debe guardarse en `docs/` con un commit propio. Todo lo que no aparece ahí se registra como ambigüedad.
+>
+> Registros relacionados: [matriz de trazabilidad](matriz_trazabilidad.md) · [bitácora de IA](bitacora_ia.md)
 
 ## 1. Inventario de requerimientos funcionales
 
@@ -19,10 +21,10 @@
 | RF-07 | Consultar y validar disponibilidad (HU-12, HU-13) | 3 | v0.3.0 | Req. §5; HU §6.1; CA §6.2 (CA-36 a CA-41) | Publicado (v0.3.0) |
 | RF-02 | Validar citas duplicadas por dentista (HU-03) | 3 | v0.3.0 | Req. §5; HU §6.1; CA §6.2 (CA-07 a CA-09) | Publicado (v0.3.0) |
 | RF-01 | Registrar citas, paciente o recepcionista (HU-01, HU-02) | 3 | v0.3.0 | Req. §5; HU §6.1; CA §6.2 (CA-01 a CA-06) | Publicado (v0.3.0) |
-| RF-06 | Mostrar citas filtradas (HU-09, HU-10, HU-11) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-27 a CA-35) | Pendiente |
-| RF-03 | Modificar citas (HU-04, HU-05) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-10 a CA-16) | Pendiente |
-| RF-04 | Cancelar citas (HU-06, HU-07) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-17 a CA-23) | Pendiente |
-| RF-05 | Eliminar citas, solo recepción (HU-08) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-24 a CA-26) | Pendiente |
+| RF-06 | Mostrar citas filtradas (HU-09, HU-10, HU-11) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-27 a CA-35) | Publicado (v0.4.0) |
+| RF-03 | Modificar citas (HU-04, HU-05) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-10 a CA-16) | Publicado (v0.4.0) |
+| RF-04 | Cancelar citas (HU-06, HU-07) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-17 a CA-23) | Publicado (v0.4.0) |
+| RF-05 | Eliminar citas, solo recepción (HU-08) | 4 | v0.4.0 | Req. §5; HU §6.1; CA §6.2 (CA-24 a CA-26) | Publicado (v0.4.0) |
 
 Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de revisión).
 
@@ -62,7 +64,7 @@ Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de rev
 | Criterios de aceptación | RF-07: CA-36 a CA-41. RF-02: CA-07 a CA-09. RF-01: CA-01 a CA-06. Reutilizados: CA-45 a CA-47. |
 | Módulos | M3 Disponibilidad, M2 Gestión de citas, M6 Validación y mensajes, M7 Acceso a datos |
 | Depende de | Incremento 1 (M6) e Incremento 2 (sesión con rol RF-11, SQLite RF-09 y catálogo RF-08) |
-| Cierres diferidos | CA-01 (ver la cita en "mis citas", con RF-06) y CA-40 (horario liberado tras cancelar, con RF-04) se verifican en el Incremento 4. |
+| Cierres diferidos | CA-01 (ver la cita en "mis citas", con RF-06) y CA-40 (horario liberado tras cancelar, con RF-04): verificados en el Incremento 4. |
 | Archivos | `modules/availability.py` (M3), `modules/appointments.py` (M2), citas en `modules/data_access.py` (M7), `main.py` |
 | Estado | Cerrado y etiquetado (v0.3.0). Regresión: 99 pruebas, 0 fallidas. |
 
@@ -76,7 +78,9 @@ Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de rev
 | Módulos | M4 Consulta de agenda, M2 Gestión de citas, M3 Disponibilidad, M1 Autenticación y roles, M6 y M7 |
 | Depende de | Incremento 3 (citas y disponibilidad), Incremento 2 (sesión con rol) e Incremento 1 (M6) |
 | Pruebas mínimas | Normal: CA-27, CA-30, CA-33, CA-10, CA-14, CA-17, CA-21, CA-24. Límite: CA-28, CA-31, CA-34, CA-11, CA-15, CA-18, CA-22, CA-25. Error: CA-12, CA-13, CA-16, CA-19, CA-20, CA-23, CA-26, CA-29, CA-32, CA-35. |
-| Estado | Pendiente |
+| Archivos | `modules/agenda.py` (M4), modificar/cancelar/eliminar en `modules/appointments.py` (M2), `modules/data_access.py` (M7), `main.py` |
+| Cierres diferidos verificados | CA-01 (`test_agenda.py`) y CA-40 (`test_appointments_cambios.py`) |
+| Estado | Cerrado y etiquetado (v0.4.0). Regresión: 148 pruebas, 0 fallidas. |
 
 ## 3. Ambigüedades y su resolución
 
@@ -95,3 +99,4 @@ Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de rev
 | 19/11/2026 | Se publica el plan en `docs/` y se etiqueta v0.1.0 sobre `master` | El repositorio solo tenía el commit "Estructura Inicial"; el plan y el tag del Incremento 1 no estaban publicados. | Equipo de desarrollo |
 | 19/11/2026 | Cierre del Incremento 2 (v0.2.0) | Roles definidos como paciente, recepcionista y dentista (HU-01 a HU-16); se descarta el rol "Administrador" de la práctica de persistencia porque no aparece en RF-01 a RF-11. | Equipo de desarrollo |
 | 19/11/2026 | Cierre del Incremento 3 (v0.3.0) | Se fija el horario de atención como supuesto (bloques de 60 min, 09:00 a 18:00) porque el documento no lo define; RF-02 se refuerza con un índice único en la BD. | Equipo de desarrollo |
+| 19/11/2026 | Cierre del Incremento 4 (v0.4.0): RF-06, RF-03, RF-04 y RF-05 | Se completa el 100 % de los RF; se agregan `docs/matriz_trazabilidad.md` y `docs/bitacora_ia.md`. | Equipo de desarrollo |

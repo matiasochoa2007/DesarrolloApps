@@ -116,5 +116,57 @@ class PruebasConsolaIncremento3(unittest.TestCase):
         self.assertNotIn("Registrar una cita", texto)
 
 
+class PruebasConsolaIncremento4(unittest.TestCase):
+    """Recorrido completo: agendar, ver, modificar, cancelar y eliminar."""
+
+    def setUp(self):
+        self.temp = BaseTemporal()
+        sembrar_datos_demo(self.temp.bd)
+        simular(self.temp.bd, [
+            "paciente01", CLAVES["paciente01"],
+            "3", "1", MANANA, "16:00", "2", "",
+            "0", "salir",
+        ])
+
+    def tearDown(self):
+        self.temp.limpiar()
+
+    def test_paciente_ve_modifica_y_cancela_su_cita(self):
+        texto = simular(self.temp.bd, [
+            "paciente01", CLAVES["paciente01"],
+            "4",                                       # ver mis citas
+            "5", "1", "", "17:00", "", "",             # modificar hora
+            "6", "1",                                  # cancelar
+            "4",
+            "0", "salir",
+        ])
+        self.assertIn(f"{MANANA} 16:00", texto)
+        self.assertIn("modificada", texto)
+        self.assertIn("Reprogramada", texto)
+        self.assertIn("cancelada", texto)
+        self.assertIn("Cancelada", texto)
+
+    def test_recepcionista_filtra_y_elimina_con_confirmacion(self):
+        texto = simular(self.temp.bd, [
+            "recepcion01", CLAVES["recepcion01"],
+            "4", MANANA, "", "",                       # filtrar por día
+            "7", "1", "n",                             # no confirma
+            "7", "1", "s",                             # elimina
+            "4", MANANA, "", "",
+            "0", "salir",
+        ])
+        self.assertIn("Ana Pérez Soto con Laura Peña Núñez", texto)
+        self.assertIn("Eliminación cancelada", texto)
+        self.assertIn("eliminada definitivamente", texto)
+        self.assertIn("No hay citas que coincidan", texto)
+
+    def test_dentista_ve_su_agenda(self):
+        texto = simular(self.temp.bd, [
+            "dentista01", CLAVES["dentista01"], "2", MANANA, "0", "salir",
+        ])
+        self.assertIn(f"{MANANA} 16:00", texto)
+        self.assertNotIn("Eliminar", texto)
+
+
 if __name__ == "__main__":
     unittest.main()

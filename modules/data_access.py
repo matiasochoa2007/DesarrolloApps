@@ -291,6 +291,50 @@ class BaseDatos:
         )
         return [fila["hora"] for fila in filas]
 
+    def actualizar_cita(self, id_cita, fecha, hora, id_odontologo, id_servicio,
+                        motivo, estatus):
+        """Reemplaza los datos de una cita. Devuelve las filas afectadas."""
+        cursor = self._ejecutar(
+            "UPDATE cita SET fecha = ?, hora = ?, id_odontologo = ?, "
+            "id_servicio = ?, motivo = ?, estatus = ? WHERE id_cita = ?",
+            (fecha, hora, id_odontologo, id_servicio, motivo, estatus, id_cita),
+        )
+        return cursor.rowcount
+
+    def actualizar_estatus(self, id_cita, estatus):
+        """Cambia el estatus de una cita. Devuelve las filas afectadas."""
+        cursor = self._ejecutar(
+            "UPDATE cita SET estatus = ? WHERE id_cita = ?", (estatus, id_cita)
+        )
+        return cursor.rowcount
+
+    def eliminar_cita(self, id_cita):
+        """Borra el registro de la cita (RF-05). Devuelve las filas borradas."""
+        cursor = self._ejecutar("DELETE FROM cita WHERE id_cita = ?", (id_cita,))
+        return cursor.rowcount
+
+    def consultar_citas(self, id_paciente=None, id_odontologo=None, fecha=None,
+                        incluir_canceladas=True):
+        """Citas con detalle, filtradas por paciente, dentista o día (RF-06).
+
+        Los filtros en None no se aplican. Orden: fecha y hora.
+        """
+        condiciones, parametros = [], []
+        for columna, valor in (("c.id_paciente", id_paciente),
+                               ("c.id_odontologo", id_odontologo),
+                               ("c.fecha", fecha)):
+            if valor is not None:
+                condiciones.append(f"{columna} = ?")
+                parametros.append(valor)
+        if not incluir_canceladas:
+            condiciones.append("c.estatus <> ?")
+            parametros.append(ESTATUS_CANCELADA)
+        sql = _SELECT_CITA_DETALLE
+        if condiciones:
+            sql += " WHERE " + " AND ".join(condiciones)
+        return self._consultar(sql + " ORDER BY c.fecha, c.hora, c.id_cita",
+                               parametros)
+
 
 _SELECT_CITA_DETALLE = """
 SELECT c.id_cita, c.fecha, c.hora, c.motivo, c.estatus,
