@@ -291,6 +291,16 @@ class BaseDatos:
         )
         return [fila["hora"] for fila in filas]
 
+    def actualizar_cita(self, id_cita, fecha, hora, id_odontologo, id_servicio,
+                        motivo, estatus):
+        """Reemplaza los datos de una cita. Devuelve las filas afectadas."""
+        cursor = self._ejecutar(
+            "UPDATE cita SET fecha = ?, hora = ?, id_odontologo = ?, "
+            "id_servicio = ?, motivo = ?, estatus = ? WHERE id_cita = ?",
+            (fecha, hora, id_odontologo, id_servicio, motivo, estatus, id_cita),
+        )
+        return cursor.rowcount
+
     def consultar_citas(self, id_paciente=None, id_odontologo=None, fecha=None,
                         incluir_canceladas=True):
         """Citas con detalle, filtradas por paciente, dentista o día (RF-06).
