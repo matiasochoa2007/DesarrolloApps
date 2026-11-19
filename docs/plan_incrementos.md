@@ -3,7 +3,7 @@
 **Equipo:** Matias Ochoa Tirado y Mateo Javier Ortega Fernández
 **Materia:** Desarrollo de Aplicaciones y Servicios Virtuales · Universidad Iberoamericana León
 **Última actualización:** 19 de noviembre de 2026
-**Avance global:** 9.09 % (1 de 11 RF publicados en GitHub con tag)
+**Avance global:** 36.36 % (4 de 11 RF publicados en GitHub con tag)
 
 > **Fuente única del plan:** el documento de especificaciones del proyecto (secciones 5, 6.1, 6.2, 6.3 y 6.4).
 > Debe guardarse en `docs/` con un commit propio. Todo lo que no aparece ahí se registra como ambigüedad.
@@ -13,9 +13,9 @@
 | RF | Descripción breve | Incremento | Tag | Sección del documento | Estado |
 |----|-------------------|-----------|-----|-----------------------|--------|
 | RF-10 | Mensajes claros de error (HU-15) | 1 | v0.1.0 | Req. §5; HU §6.1; CA §6.2 (CA-45 a CA-47) | Publicado (v0.1.0) |
-| RF-09 | Base de datos SQLite (HU-17) | 2 | v0.2.0 | Req. §5; HU §6.1; CA §6.2 (CA-51 a CA-53) | Pendiente |
-| RF-11 | Inicio de sesión con roles (HU-16) | 2 | v0.2.0 | Req. §5; HU §6.1; CA §6.2 (CA-48 a CA-50) | Pendiente |
-| RF-08 | Catálogo de servicios (HU-14) | 2 | v0.2.0 | Req. §5; HU §6.1; CA §6.2 (CA-42 a CA-44) | Pendiente |
+| RF-09 | Base de datos SQLite (HU-17) | 2 | v0.2.0 | Req. §5; HU §6.1; CA §6.2 (CA-51 a CA-53) | Publicado (v0.2.0) |
+| RF-11 | Inicio de sesión con roles (HU-16) | 2 | v0.2.0 | Req. §5; HU §6.1; CA §6.2 (CA-48 a CA-50) | Publicado (v0.2.0) |
+| RF-08 | Catálogo de servicios (HU-14) | 2 | v0.2.0 | Req. §5; HU §6.1; CA §6.2 (CA-42 a CA-44) | Publicado (v0.2.0) |
 | RF-07 | Consultar y validar disponibilidad (HU-12, HU-13) | 3 | v0.3.0 | Req. §5; HU §6.1; CA §6.2 (CA-36 a CA-41) | Pendiente |
 | RF-02 | Validar citas duplicadas por dentista (HU-03) | 3 | v0.3.0 | Req. §5; HU §6.1; CA §6.2 (CA-07 a CA-09) | Pendiente |
 | RF-01 | Registrar citas, paciente o recepcionista (HU-01, HU-02) | 3 | v0.3.0 | Req. §5; HU §6.1; CA §6.2 (CA-01 a CA-06) | Pendiente |
@@ -50,7 +50,8 @@ Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de rev
 | Módulos | M7 Acceso a datos, M1 Autenticación y roles, M5 Catálogo de servicios (reutiliza M6) |
 | Depende de | Incremento 1 (RF-10 / M6): reutiliza `esta_vacio` y el estilo de mensajes |
 | Pruebas mínimas | Normal: login correcto y catálogo con servicios. Límite: catálogo vacío; paciente que intenta una función de recepción (CA-49). Error: credenciales incorrectas; base no disponible. |
-| Estado | Pendiente |
+| Archivos | `config/settings.py`, `modules/data_access.py` (M7), `modules/auth_roles.py` (M1), `modules/service_catalog.py` (M5), `modules/demo_data.py`, `main.py` |
+| Estado | Cerrado y etiquetado (v0.2.0). Regresión: 55 pruebas, 0 fallidas. |
 
 ### Incremento 3 · v0.3.0 · rama `incremento-3`
 
@@ -90,3 +91,4 @@ Totales del documento: 11 RF, 9 RNF, 17 HU y 53 CA base (57 con criterios de rev
 |-------|--------|--------|--------------|
 | 08/11/2026 | Creación del plan inicial de incrementos | Organización del trabajo tras la entrega de requerimientos y arquitectura. | Matias Ochoa / Mateo Ortega |
 | 19/11/2026 | Se publica el plan en `docs/` y se etiqueta v0.1.0 sobre `master` | El repositorio solo tenía el commit "Estructura Inicial"; el plan y el tag del Incremento 1 no estaban publicados. | Equipo de desarrollo |
+| 19/11/2026 | Cierre del Incremento 2 (v0.2.0) | Roles definidos como paciente, recepcionista y dentista (HU-01 a HU-16); se descarta el rol "Administrador" de la práctica de persistencia porque no aparece en RF-01 a RF-11. | Equipo de desarrollo |
