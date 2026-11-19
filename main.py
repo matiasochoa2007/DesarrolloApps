@@ -9,10 +9,22 @@ módulos y muestra sus mensajes.
 """
 
 import getpass
+from datetime import date
 
 from config import settings
-from modules.appointments import registrar_cita
-from modules.auth_roles import ROL_PACIENTE, ROL_RECEPCIONISTA, iniciar_sesion
+from modules.agenda import agenda_dentista, filtrar_citas, formatear_cita, mis_citas
+from modules.appointments import (
+    cancelar_cita,
+    eliminar_cita,
+    modificar_cita,
+    registrar_cita,
+)
+from modules.auth_roles import (
+    ROL_DENTISTA,
+    ROL_PACIENTE,
+    ROL_RECEPCIONISTA,
+    iniciar_sesion,
+)
 from modules.availability import consultar_disponibilidad, fecha_de_manana
 from modules.data_access import BaseDatos, ErrorBaseDatos
 from modules.demo_data import sembrar_datos_demo
@@ -63,12 +75,21 @@ class Consola:
             opciones += [
                 ("Consultar horarios libres de un dentista", self.ver_disponibilidad),
                 ("Agendar una cita", self.agendar_cita),
+                ("Ver mis citas", self.ver_mis_citas),
+                ("Modificar una de mis citas", self.modificar),
+                ("Cancelar una de mis citas", self.cancelar),
             ]
         elif rol == ROL_RECEPCIONISTA:
             opciones += [
                 ("Consultar disponibilidad de un dentista", self.ver_disponibilidad),
                 ("Registrar una cita para un paciente", self.agendar_cita),
+                ("Ver y filtrar citas", self.ver_citas_filtradas),
+                ("Modificar una cita", self.modificar),
+                ("Cancelar una cita", self.cancelar),
+                ("Eliminar una cita", self.eliminar),
             ]
+        elif rol == ROL_DENTISTA:
+            opciones += [("Ver mi agenda del día", self.ver_agenda)]
         return opciones
 
     def menu(self):
@@ -156,6 +177,59 @@ class Consola:
         datos["servicio"] = self.preguntar("Número del servicio: ")
         datos["motivo"] = self.preguntar("Motivo (opcional): ")
         self.mostrar(registrar_cita(self.bd, self.sesion, datos))
+
+    # -- Consultas y cambios (Incremento 4) ---------------------------------------
+
+    def mostrar_citas(self, resultado):
+        self.mostrar(resultado)
+        for cita in resultado["citas"]:
+            self.salida(formatear_cita(cita))
+
+    def ver_mis_citas(self):
+        self.mostrar_citas(mis_citas(self.bd, self.sesion))
+
+    def ver_citas_filtradas(self):
+        self.salida("Deje vacío el filtro que no quiera aplicar.")
+        fecha = self.preguntar("Día (AAAA-MM-DD): ")
+        dentista = self.preguntar("Número del dentista: ")
+        paciente = self.preguntar("Número del paciente: ")
+        self.mostrar_citas(filtrar_citas(self.bd, self.sesion, fecha, dentista, paciente))
+
+    def ver_agenda(self):
+        fecha = self.preguntar(f"Día (AAAA-MM-DD, Enter para hoy {date.today().isoformat()}): ")
+        self.mostrar_citas(agenda_dentista(self.bd, self.sesion,
+                                           fecha or date.today().isoformat()))
+
+    def pedir_folio(self):
+        if self.sesion["rol"] == ROL_PACIENTE:
+            self.ver_mis_citas()
+        return self.preguntar("Folio de la cita: ")
+
+    def modificar(self):
+        id_cita = self.pedir_folio()
+        self.salida("Escriba el nuevo valor o presione Enter para conservar el actual.")
+        cambios = {}
+        if self.sesion["rol"] == ROL_RECEPCIONISTA:
+            cambios["dentista"] = self.preguntar("Nuevo dentista (número): ")
+        cambios["fecha"] = self.preguntar("Nueva fecha (AAAA-MM-DD): ")
+        cambios["hora"] = self.preguntar("Nueva hora (HH:MM): ")
+        cambios["servicio"] = self.preguntar("Nuevo servicio (número): ")
+        cambios["motivo"] = self.preguntar("Nuevo motivo: ")
+        cambios = {campo: valor for campo, valor in cambios.items() if valor}
+        self.mostrar(modificar_cita(self.bd, self.sesion, id_cita, cambios))
+
+    def cancelar(self):
+        self.mostrar(cancelar_cita(self.bd, self.sesion, self.pedir_folio()))
+
+    def eliminar(self):
+        id_cita = self.pedir_folio()
+        confirmacion = self.preguntar(
+            f"¿Eliminar definitivamente la cita {id_cita}? No se puede deshacer (s/n): "
+        )
+        if confirmacion.lower() != "s":
+            self.salida("Eliminación cancelada; la cita no se modificó.")
+            return
+        self.mostrar(eliminar_cita(self.bd, self.sesion, id_cita))
 
 
 def main():
