@@ -49,6 +49,8 @@ modules/validation_messages.py  M6 Validación y mensajes (RF-10)
 modules/data_access.py        M7 Acceso a datos SQLite (RF-09)
 modules/auth_roles.py         M1 Autenticación y roles (RF-11)
 modules/service_catalog.py    M5 Catálogo de servicios (RF-08)
+modules/availability.py       M3 Disponibilidad (RF-07, RF-02)
+modules/appointments.py       M2 Gestión de citas (RF-01)
 modules/demo_data.py          Datos de demostración
 tests/                        Pruebas unittest por módulo
 docs/plan_incrementos.md      Plan de incrementos, ambigüedades y registro de cambios
@@ -60,3 +62,4 @@ docs/plan_incrementos.md      Plan de incrementos, ambigüedades y registro de c
 |-----------|-----|-----------|
 | 1 | `v0.1.0` | Mensajes claros de error (RF-10) |
 | 2 | `v0.2.0` | SQLite, inicio de sesión con roles y catálogo de servicios (RF-09, RF-11, RF-08) |
+| 3 | `v0.3.0` | Disponibilidad, citas sin empalmes y registro de citas (RF-07, RF-02, RF-01) |
