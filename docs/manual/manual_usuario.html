@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Manual de usuario · Orthoimagen Dental</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm; }
+  :root {
+    --marca-950: #04201c; --marca-900: #072d28; --marca-700: #0c5047; --marca-600: #0f6b5f; --marca-500: #13887a;
+    --marca-100: #dcf0eb; --marca-50: #eff8f6; --champan: #c9a86a; --champan-suave: #f7f0e3;
+    --tinta: #0e1c19; --tinta-2: #364743; --tenue: #6a7b76; --linea: #e4e9e7;
+    --error: #b42318; --error-suave: #fdeceb; --aviso: #a8580a; --aviso-suave: #fdf3e3; --exito: #0b7a47; --exito-suave: #e6f5ed;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; color: var(--tinta); font-size: 10.5pt; line-height: 1.55; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1, h2, h3 { font-family: "Segoe UI Variable Display", "Segoe UI", sans-serif; letter-spacing: -.01em; }
+  h2 { font-size: 21pt; margin: 0 0 4mm; color: var(--marca-900); break-before: page; padding-top: 2mm; }
+  h2 .num { display: inline-grid; place-items: center; width: 11mm; height: 11mm; border-radius: 3mm; background: var(--marca-600); color: #fff; font-size: 14pt; margin-right: 3mm; vertical-align: 2px; }
+  h3 { font-size: 13pt; margin: 7mm 0 2mm; color: var(--marca-700); break-after: avoid; }
+  p { margin: 0 0 3mm; }
+  .entradilla { font-size: 11.5pt; color: var(--tinta-2); margin-bottom: 6mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  strong { font-weight: 650; }
+  code, .tecla { font-family: "Cascadia Mono", Consolas, monospace; font-size: 9.5pt; background: #f2f5f4; border: 1px solid var(--linea); border-radius: 1.5mm; padding: .3mm 1.5mm; }
+
+  /* Portada */
+  .portada { height: 263mm; border-radius: 6mm; overflow: hidden; position: relative; color: #fff; padding: 20mm 18mm;
+    background: radial-gradient(140mm 110mm at 0% 0%, rgba(23,144,127,.6), transparent 60%), radial-gradient(120mm 90mm at 100% 100%, rgba(201,168,106,.25), transparent 60%), linear-gradient(160deg, #0a3d36, var(--marca-950));
+    }
+  .portada::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px); background-size: 6mm 6mm; }
+  .portada > * { position: relative; z-index: 1; }
+  .marca { display: flex; align-items: center; gap: 4mm; }
+  .marca img { width: 15mm; height: 15mm; }
+  .marca strong { display: block; font-size: 15pt; }
+  .marca span { font-size: 8.5pt; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+  .portada .sobre { color: var(--champan); font-size: 9pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  .portada h1 { font-size: 44pt; line-height: 1.02; margin: 4mm 0 5mm; letter-spacing: -.03em; }
+  .portada h1 em { font-style: normal; color: #bfe3dc; }
+  .portada .lema { font-size: 13pt; color: rgba(255,255,255,.75); max-width: 130mm; }
+  .portada .titular { position: absolute; top: 46mm; left: 18mm; max-width: 112mm; z-index: 2; }
+  .portada .datos { position: absolute; left: 18mm; right: 18mm; bottom: 18mm; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; border-top: 1px solid rgba(255,255,255,.15); padding-top: 6mm; font-size: 9pt; color: rgba(255,255,255,.65); }
+  .portada .datos strong { display: block; color: #fff; font-size: 10.5pt; }
+  .portada .vista { position: absolute; right: -22mm; top: 122mm; width: 140mm; border-radius: 4mm; box-shadow: 0 10mm 30mm rgba(0,0,0,.45); transform: rotate(-3deg); border: 1mm solid rgba(255,255,255,.12); z-index: 1; }
+
+  /* Índice */
+  .indice { break-before: page; }
+  .indice h2 { break-before: avoid; }
+  .indice ol { list-style: none; padding: 0; counter-reset: i; }
+  .indice li { counter-increment: i; display: flex; gap: 4mm; align-items: baseline; padding: 3mm 0; border-bottom: 1px dashed var(--linea); font-size: 11.5pt; }
+  .indice li::before { content: counter(i, decimal-leading-zero); font-weight: 700; color: var(--marca-500); width: 9mm; }
+  .indice li small { margin-left: auto; color: var(--tenue); font-size: 9.5pt; }
+
+  /* Figuras */
+  figure { margin: 4mm 0 5mm; break-inside: avoid; }
+  figure img { width: 100%; border-radius: 3mm; border: 1px solid var(--linea); box-shadow: 0 1.5mm 6mm rgba(14,28,25,.12); display: block; }
+  figure.media img { width: 82%; margin: 0 auto; }
+  figcaption { font-size: 9pt; color: var(--tenue); margin-top: 2mm; text-align: center; }
+  figcaption b { color: var(--marca-600); }
+
+  /* Cajas */
+  .caja { border-radius: 3mm; padding: 3.5mm 4.5mm; margin: 4mm 0; border: 1px solid; break-inside: avoid; }
+  .caja strong:first-child { display: block; margin-bottom: 1mm; }
+  .caja--info { background: var(--marca-50); border-color: var(--marca-100); }
+  .caja--oro { background: var(--champan-suave); border-color: #eadcc0; color: #5f4718; }
+  .caja--aviso { background: var(--aviso-suave); border-color: #f3dcb5; color: #6b3a07; }
+  .caja--error { background: var(--error-suave); border-color: #f6d2ce; color: #7a1a12; }
+
+  /* Pasos numerados */
+  .pasos { list-style: none; padding: 0; counter-reset: p; display: grid; gap: 2.5mm; margin: 3mm 0 4mm; }
+  .pasos li { counter-increment: p; display: grid; grid-template-columns: 8mm 1fr; gap: 3mm; align-items: start; margin: 0; }
+  .pasos li::before { content: counter(p); display: grid; place-items: center; width: 7mm; height: 7mm; border-radius: 2mm; background: var(--marca-600); color: #fff; font-weight: 700; font-size: 9.5pt; }
+
+  /* Tablas */
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 3mm 0 5mm; font-size: 9.8pt; break-inside: avoid; border: 1px solid var(--linea); border-radius: 3mm; overflow: hidden; }
+  th { background: var(--marca-900); color: #fff; text-align: left; padding: 2.6mm 3.5mm; font-weight: 650; font-size: 9pt; letter-spacing: .02em; }
+  td { padding: 2.6mm 3.5mm; border-top: 1px solid var(--linea); vertical-align: top; }
+  tr:nth-child(even) td { background: #f8faf9; }
+  .pill { display: inline-block; padding: .4mm 2.4mm; border-radius: 10mm; font-size: 8.5pt; font-weight: 650; white-space: nowrap; }
+  .pill--prog { background: var(--marca-50); color: var(--marca-600); border: 1px solid var(--marca-100); }
+  .pill--rep { background: var(--aviso-suave); color: var(--aviso); border: 1px solid #f3dcb5; }
+  .pill--can { background: #f1f3f2; color: var(--tenue); border: 1px solid var(--linea); }
+  .pill--ok { background: var(--exito-suave); color: var(--exito); }
+  .pill--err { background: var(--error-suave); color: var(--error); }
+
+  /* Tarjetas de ruta (tipo de cliente) */
+  .rutas { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin: 4mm 0; }
+  .ruta { border: 1px solid var(--linea); border-radius: 4mm; padding: 4.5mm; break-inside: avoid; background: #fff; }
+  .ruta .etiqueta { display: inline-block; font-size: 8pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--marca-500); margin-bottom: 1.5mm; }
+  .ruta h4 { margin: 0 0 2mm; font-size: 12pt; }
+  .ruta p { margin: 0; color: var(--tinta-2); font-size: 9.8pt; }
+  .ruta--destacada { background: linear-gradient(160deg, var(--marca-600), var(--marca-900)); color: #fff; border-color: transparent; }
+  .ruta--destacada p { color: rgba(255,255,255,.85); }
+  .ruta--destacada .etiqueta { color: var(--champan); }
+
+  .dos-col { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; align-items: start; }
+  .pie-final { margin-top: 10mm; padding-top: 4mm; border-top: 1px solid var(--linea); color: var(--tenue); font-size: 9pt; }
+</style>
+</head>
+<body>
+
+<!-- ============================ PORTADA ============================ -->
+<section class="portada">
+  <div class="marca"><img src="logo.svg" alt=""><div><strong>Orthoimagen Dental</strong><span>Sistema de citas</span></div></div>
+  <img class="vista" src="img/04_agendar.jpg" alt="">
+  <div class="titular">
+    <div class="sobre">Manual de usuario · versión 1.1</div>
+    <h1>Su cita,<br><em>sin llamadas<br>ni esperas.</em></h1>
+    <p class="lema">Guía paso a paso para pacientes nuevos y pacientes de siempre, recepción y dentistas.</p>
+  </div>
+  <div class="datos">
+    <div><strong>Para pacientes</strong>Crear cuenta, agendar, modificar y cancelar</div>
+    <div><strong>Para recepción</strong>Pacientes, accesos y agenda completa</div>
+    <div><strong>Para dentistas</strong>Agenda del día</div>
+  </div>
+</section>
+
+<!-- ============================ ÍNDICE ============================ -->
+<section class="indice">
+  <h2>Contenido</h2>
+  <ol>
+    <li>Antes de empezar<small>Abrir la aplicación y cuidar sus datos</small></li>
+    <li>¿Qué tipo de cliente es usted?<small>Nuevo, de siempre, con cuenta u olvidó su contraseña</small></li>
+    <li>Paciente nuevo: crear su cuenta<small>Registro desde la pantalla de inicio</small></li>
+    <li>Iniciar sesión<small>Usuario, contraseña y errores frecuentes</small></li>
+    <li>Paciente: agendar y administrar sus citas<small>Inicio, 5 pasos, modificar y cancelar</small></li>
+    <li>Recepción<small>Panel, citas, pacientes nuevos y de siempre, accesos</small></li>
+    <li>Dentista<small>Jornada y agenda del día</small></li>
+    <li>Catálogo de servicios<small>Duración y precio</small></li>
+    <li>Mensajes del sistema<small>Qué significan y qué hacer</small></li>
+    <li>Preguntas frecuentes<small>Dudas comunes de pacientes y personal</small></li>
+  </ol>
+  <div class="caja caja--oro"><strong>Cómo leer este manual</strong>Si es paciente, lea las secciones 2 a 5. Si trabaja en recepción, la 2, la 6 y la 9. Si es dentista, la 4 y la 7.</div>
+</section>
+
+<!-- ============================ 1 ============================ -->
+<section>
+  <h2><span class="num">1</span>Antes de empezar</h2>
+  <p class="entradilla">Orthoimagen Dental es una aplicación de escritorio para Windows. No necesita instalar nada más.</p>
+  <h3>Abrir la aplicación</h3>
+  <ol class="pasos">
+    <li><div>Haga doble clic en <strong>OrthoimagenDental.exe</strong>. La ventana se abre maximizada.</div></li>
+    <li><div>La primera vez, Windows puede mostrar el aviso <em>“Windows protegió su PC”</em> porque la aplicación no tiene firma digital comercial. Elija <strong>Más información → Ejecutar de todas formas</strong>. Solo pasa la primera vez.</div></li>
+    <li><div>Aparece la pantalla de acceso. Desde ahí entra quien ya tiene cuenta o se registra un paciente nuevo.</div></li>
+  </ol>
+  <table>
+    <tr><th style="width:32%">Requisito</th><th>Detalle</th></tr>
+    <tr><td>Sistema</td><td>Windows 10 o 11 de 64 bits.</td></tr>
+    <tr><td>Componente de pantalla</td><td>Microsoft Edge WebView2, que ya viene en Windows 11. Si la aplicación avisa que falta, descárguelo gratis desde el sitio de Microsoft.</td></tr>
+    <tr><td>Internet</td><td>No es necesario: todo funciona en la computadora de la clínica.</td></tr>
+  </table>
+  <h3>Dónde se guardan los datos</h3>
+  <p>Pacientes, citas y usuarios se guardan en la carpeta <code>data</code>, junto al archivo <code>OrthoimagenDental.exe</code>. Las contraseñas se guardan cifradas: nadie, ni siquiera recepción, puede leerlas.</p>
+  <div class="caja caja--aviso"><strong>Respaldo recomendado</strong>Al final de cada semana cierre la aplicación y copie la carpeta <code>data</code> a una memoria USB o a la nube. Si algo falla, basta con volver a colocarla junto al <code>.exe</code>. No mueva el <code>.exe</code> sin su carpeta <code>data</code>: la aplicación crearía una base vacía.</div>
+  <h3>Tres tipos de usuario</h3>
+  <table>
+    <tr><th style="width:22%">Rol</th><th>Qué puede hacer</th></tr>
+    <tr><td><strong>Paciente</strong></td><td>Crear su cuenta, ver horarios libres, agendar, ver, modificar y cancelar <em>sus propias</em> citas, y consultar los servicios.</td></tr>
+    <tr><td><strong>Recepción</strong></td><td>Todo lo anterior para cualquier paciente, además de registrar pacientes, crear y restablecer accesos, filtrar la agenda y eliminar citas.</td></tr>
+    <tr><td><strong>Dentista</strong></td><td>Ver su jornada y su agenda día por día, y consultar los servicios.</td></tr>
+  </table>
+</section>
+
+<!-- ============================ 2 ============================ -->
+<section>
+  <h2><span class="num">2</span>¿Qué tipo de cliente es usted?</h2>
+  <p class="entradilla">Siga la ruta que corresponda a su caso. Así no se duplica su expediente y conserva su historial.</p>
+  <div class="rutas">
+    <div class="ruta ruta--destacada">
+      <span class="etiqueta">Cliente nuevo</span>
+      <h4>Nunca ha venido a la clínica</h4>
+      <p><strong>Opción A:</strong> en la pantalla de acceso elija <strong>“Soy paciente nuevo”</strong> y cree su cuenta en un minuto (sección 3).<br><strong>Opción B:</strong> llame o acuda a recepción; ahí lo registran y le agendan (sección 6.3).</p>
+    </div>
+    <div class="ruta">
+      <span class="etiqueta">Cliente de siempre</span>
+      <h4>Ya es paciente pero no tiene usuario</h4>
+      <p><strong>No cree una cuenta nueva.</strong> Pida en recepción su acceso: le darán usuario y contraseña ligados a su expediente y conservará todo su historial (sección 6.5). Si intenta registrarse con el mismo teléfono, el sistema se lo indicará.</p>
+    </div>
+    <div class="ruta">
+      <span class="etiqueta">Cliente con cuenta</span>
+      <h4>Ya tiene usuario y contraseña</h4>
+      <p>Escriba sus datos en <strong>“Iniciar sesión”</strong> y presione <strong>Entrar</strong> (sección 4).</p>
+    </div>
+    <div class="ruta">
+      <span class="etiqueta">Olvidó su contraseña</span>
+      <h4>No recuerda cómo entrar</h4>
+      <p>Comuníquese con recepción. Le asignarán una contraseña nueva al momento; su usuario y sus citas no cambian (sección 6.5).</p>
+    </div>
+  </div>
+  <table>
+    <tr><th style="width:30%">Situación</th><th>Qué hacer</th><th style="width:16%">Sección</th></tr>
+    <tr><td>Quiero agendar y nunca he venido</td><td>Crear cuenta en “Soy paciente nuevo”</td><td>3</td></tr>
+    <tr><td>Llamo por teléfono por primera vez</td><td>Recepción me registra y agenda</td><td>6.3</td></tr>
+    <tr><td>Ya soy paciente, sin usuario</td><td>Pedir acceso en recepción</td><td>6.5</td></tr>
+    <tr><td>Tengo cuenta</td><td>Iniciar sesión</td><td>4</td></tr>
+    <tr><td>Olvidé mi contraseña</td><td>Recepción la restablece</td><td>6.5</td></tr>
+  </table>
+</section>
+
+<!-- ============================ 3 ============================ -->
+<section>
+  <h2><span class="num">3</span>Paciente nuevo: crear su cuenta</h2>
+  <p class="entradilla">Regístrese una sola vez. Al terminar entra directamente y puede agendar su primera cita.</p>
+  <div class="dos-col">
+    <figure><img src="img/02_registro.jpg" alt=""><figcaption><b>Figura 1.</b> Formulario “Soy paciente nuevo”.</figcaption></figure>
+    <div>
+      <ol class="pasos">
+        <li><div>En la pantalla de acceso, elija la pestaña <strong>Soy paciente nuevo</strong>.</div></li>
+        <li><div>Escriba su <strong>nombre</strong>, <strong>apellidos</strong> y <strong>teléfono</strong> (10 dígitos; puede usar espacios o guiones).</div></li>
+        <li><div>Si quiere, agregue su <strong>correo</strong> y su <strong>fecha de nacimiento</strong>.</div></li>
+        <li><div>Invente un <strong>usuario</strong> fácil de recordar, por ejemplo <code>sofia.lara</code>.</div></li>
+        <li><div>Escriba una <strong>contraseña</strong> y repítala en <strong>Confirmar</strong>. La barra de colores indica qué tan segura es.</div></li>
+        <li><div>Presione <strong>Crear mi cuenta</strong>. Verá la bienvenida y su pantalla de inicio.</div></li>
+      </ol>
+    </div>
+  </div>
+  <table>
+    <tr><th style="width:24%">Dato</th><th>Regla</th><th style="width:30%">Ejemplo válido</th></tr>
+    <tr><td>Teléfono</td><td>Obligatorio, 10 dígitos. No puede estar registrado por otro paciente.</td><td><code>477 123 4567</code></td></tr>
+    <tr><td>Usuario</td><td>De 4 a 30 caracteres: letras, números, punto, guion o guion bajo. Sin espacios ni acentos. Debe estar libre.</td><td><code>sofia.lara</code></td></tr>
+    <tr><td>Contraseña</td><td>Mínimo 8 caracteres, con letras y números.</td><td><code>Sonrisa2026</code></td></tr>
+    <tr><td>Correo</td><td>Opcional; si lo escribe, con formato nombre@dominio.com.</td><td><code>sofia@correo.com</code></td></tr>
+  </table>
+  <div class="caja caja--info"><strong>¿El sistema dice que su teléfono ya está registrado?</strong>Significa que ya es paciente de la clínica. Pida su acceso en recepción para conservar su historial, en lugar de crear otra cuenta.</div>
+</section>
+
+<!-- ============================ 4 ============================ -->
+<section>
+  <h2><span class="num">4</span>Iniciar sesión</h2>
+  <figure><img src="img/01_acceso.jpg" alt=""><figcaption><b>Figura 2.</b> Pantalla de acceso. Los botones de “Accesos de demostración” solo aparecen en la versión de práctica.</figcaption></figure>
+  <ol class="pasos">
+    <li><div>Escriba su <strong>usuario</strong> y su <strong>contraseña</strong>. Con el ícono del ojo puede ver lo que escribe.</div></li>
+    <li><div>Presione <strong>Entrar</strong> o la tecla <span class="tecla">Enter</span>.</div></li>
+    <li><div>La aplicación abre el menú que corresponde a su rol. Para salir, use el botón de la esquina inferior izquierda, junto a su nombre.</div></li>
+  </ol>
+  <figure class="media"><img src="img/18_error_acceso.jpg" alt=""><figcaption><b>Figura 3.</b> Si el usuario o la contraseña no coinciden, aparece un aviso en rojo. Por seguridad no se indica cuál de los dos está mal.</figcaption></figure>
+</section>
+
+<!-- ============================ 5 ============================ -->
+<section>
+  <h2><span class="num">5</span>Paciente: agendar y administrar sus citas</h2>
+  <h3>5.1 Pantalla de inicio</h3>
+  <figure><img src="img/03_paciente_inicio.jpg" alt=""><figcaption><b>Figura 4.</b> Su próxima cita aparece destacada, con botones para cambiarla o cancelarla.</figcaption></figure>
+  <p>El menú de la izquierda tiene cuatro opciones: <strong>Inicio</strong>, <strong>Agendar cita</strong>, <strong>Mis citas</strong> y <strong>Servicios</strong>.</p>
+
+  <h3>5.2 Agendar una cita en 5 pasos</h3>
+  <figure><img src="img/04_agendar.jpg" alt=""><figcaption><b>Figura 5.</b> Asistente para agendar. A la derecha, el resumen se actualiza con cada elección.</figcaption></figure>
+  <ol class="pasos">
+    <li><div><strong>Dentista.</strong> Elija con quién quiere su cita. La tarjeta elegida se marca con una palomita.</div></li>
+    <li><div><strong>Fecha.</strong> Toque un día de la semana; use las flechas para ver otras semanas o el calendario de la derecha para una fecha lejana.</div></li>
+    <li><div><strong>Horario.</strong> Los horarios en blanco están libres. Los rayados y tachados ya están ocupados o ya pasaron.</div></li>
+    <li><div><strong>Servicio.</strong> Elija el tratamiento; verá su duración y su precio. Si quiere, escriba el motivo de la consulta.</div></li>
+    <li><div><strong>Confirmar cita.</strong> Revise el resumen y presione el botón verde.</div></li>
+  </ol>
+  <div class="dos-col">
+    <figure><img src="img/04b_agendar_servicio.jpg" alt=""><figcaption><b>Figura 6.</b> Servicios con duración y precio, y campo de motivo.</figcaption></figure>
+    <figure><img src="img/05_confirmada.jpg" alt=""><figcaption><b>Figura 7.</b> Confirmación con folio y todos los datos.</figcaption></figure>
+  </div>
+  <div class="caja caja--info"><strong>¿Alguien ganó el horario mientras usted elegía?</strong>Si otra persona confirma el mismo horario segundos antes, el sistema le avisa que ya no está disponible y actualiza la lista para que elija otro. Nunca se agendan dos citas del mismo dentista a la misma hora.</div>
+
+  <h3>5.3 Mis citas</h3>
+  <figure><img src="img/06_mis_citas.jpg" alt=""><figcaption><b>Figura 8.</b> Pestañas “Próximas” e “Historial” (citas pasadas y canceladas).</figcaption></figure>
+  <table>
+    <tr><th style="width:28%">Estatus</th><th>Significado</th></tr>
+    <tr><td><span class="pill pill--prog">● Programada</span></td><td>Cita registrada y vigente.</td></tr>
+    <tr><td><span class="pill pill--rep">● Reprogramada</span></td><td>Se cambió la fecha, la hora o el dentista.</td></tr>
+    <tr><td><span class="pill pill--can">● Cancelada</span></td><td>Ya no se atenderá. Queda en su historial y el horario se liberó para otro paciente.</td></tr>
+  </table>
+
+  <h3>5.4 Modificar una cita</h3>
+  <div class="dos-col">
+    <figure><img src="img/07_modificar.jpg" alt=""><figcaption><b>Figura 9.</b> Ventana para modificar.</figcaption></figure>
+    <div>
+      <ol class="pasos">
+        <li><div>En <strong>Mis citas</strong> o en el Inicio, presione el ícono del lápiz (o “Cambiar fecha u hora”).</div></li>
+        <li><div>Cambie la <strong>fecha</strong>, el <strong>horario</strong>, el <strong>servicio</strong> o el <strong>motivo</strong>. Su horario actual aparece marcado.</div></li>
+        <li><div>Presione <strong>Guardar cambios</strong>. El horario anterior queda libre.</div></li>
+      </ol>
+      <div class="caja caja--oro"><strong>¿Quiere cambiar de dentista?</strong>Por seguridad, ese cambio lo hace recepción. Llame a la clínica.</div>
+    </div>
+  </div>
+
+  <h3>5.5 Cancelar una cita</h3>
+  <div class="dos-col">
+    <figure><img src="img/08_cancelar.jpg" alt=""><figcaption><b>Figura 10.</b> Confirmación antes de cancelar.</figcaption></figure>
+    <div><p>Presione el ícono <strong>⊗</strong> junto a la cita y confirme con <strong>Sí, cancelar cita</strong>. Si se arrepiente, presione <strong>Volver</strong>.</p>
+      <p>Una cita cancelada no se puede reactivar: agende una nueva. Si el horario sigue libre, puede volver a tomarlo.</p></div>
+  </div>
+</section>
+
+<!-- ============================ 6 ============================ -->
+<section>
+  <h2><span class="num">6</span>Recepción</h2>
+  <h3>6.1 Panel del día</h3>
+  <figure><img src="img/09_recepcion_panel.jpg" alt=""><figcaption><b>Figura 11.</b> Indicadores: citas de hoy y de mañana, pacientes registrados y pacientes sin acceso.</figcaption></figure>
+  <p>El indicador <strong>“Pacientes sin acceso”</strong> muestra a los clientes de siempre que aún no tienen usuario. Puede ofrecérselo cuando llamen (sección 6.5).</p>
+
+  <h3>6.2 Registrar una cita para un paciente</h3>
+  <figure><img src="img/10_recepcion_buscar_paciente.jpg" alt=""><figcaption><b>Figura 12.</b> El primer paso de recepción es buscar al paciente por nombre o teléfono.</figcaption></figure>
+  <ol class="pasos">
+    <li><div>Entre a <strong>Nueva cita</strong> y escriba parte del nombre o del teléfono del paciente. Elíjalo de la lista.</div></li>
+    <li><div>Si no aparece, use <strong>Registrar paciente nuevo</strong> desde la misma lista o el botón <strong>Paciente nuevo</strong>.</div></li>
+    <li><div>Siga los pasos de dentista, fecha, horario y servicio, igual que en la sección 5.2. Recepción también ve qué horarios están ocupados.</div></li>
+  </ol>
+
+  <h3>6.3 Cliente nuevo por teléfono o en persona</h3>
+  <div class="dos-col">
+    <figure><img src="img/13_nuevo_paciente.jpg" alt=""><figcaption><b>Figura 13.</b> Alta de paciente con acceso opcional.</figcaption></figure>
+    <div>
+      <ol class="pasos">
+        <li><div>En <strong>Pacientes</strong>, presione <strong>Nuevo paciente</strong>.</div></li>
+        <li><div>Capture nombre, apellidos y teléfono, y si quiere, nacimiento y correo.</div></li>
+        <li><div>Si el paciente quiere agendar por su cuenta en el futuro, active <strong>Crear también su acceso</strong>. El sistema propone un usuario y una contraseña; puede cambiarlos o presionar <strong>Generar</strong>.</div></li>
+        <li><div>Presione <strong>Registrar paciente</strong>. El aviso verde muestra el usuario y la contraseña para entregárselos.</div></li>
+      </ol>
+    </div>
+  </div>
+
+  <h3>6.4 Agenda de citas, filtros y acciones</h3>
+  <figure><img src="img/11_recepcion_agenda.jpg" alt=""><figcaption><b>Figura 14.</b> Agenda filtrada por día. Use “Hoy” y “Mañana” para ir directo; “Limpiar” muestra todo.</figcaption></figure>
+  <table>
+    <tr><th style="width:18%">Ícono</th><th style="width:24%">Acción</th><th>Cuándo usarla</th></tr>
+    <tr><td>Lápiz</td><td><strong>Modificar</strong></td><td>Cambiar fecha, hora, servicio, motivo o <strong>dentista</strong>.</td></tr>
+    <tr><td>⊗</td><td><strong>Cancelar</strong></td><td>El paciente avisa que no vendrá. La cita queda en el historial y se libera el horario.</td></tr>
+    <tr><td>Bote de basura</td><td><strong>Eliminar</strong></td><td>Solo para registros erróneos o duplicados. Borra la cita para siempre y <strong>no se puede deshacer</strong>.</td></tr>
+  </table>
+  <div class="caja caja--error"><strong>Cancelar no es lo mismo que eliminar</strong>Si un paciente no asistirá, <em>cancele</em>: así queda constancia. <em>Elimine</em> solo cuando la cita se capturó por error. El sistema siempre pide confirmación antes de eliminar.</div>
+
+  <h3>6.5 Pacientes y accesos (clientes de siempre y contraseñas olvidadas)</h3>
+  <figure><img src="img/12_pacientes.jpg" alt=""><figcaption><b>Figura 15.</b> Lista de pacientes con buscador. La columna “Acceso al sistema” indica quién tiene usuario.</figcaption></figure>
+  <div class="dos-col">
+    <figure><img src="img/14_acceso_paciente.jpg" alt=""><figcaption><b>Figura 16.</b> Crear acceso o restablecer contraseña.</figcaption></figure>
+    <div>
+      <p><strong>Cliente de siempre sin usuario:</strong> busque al paciente, presione el ícono de la <strong>llave</strong>, escriba el usuario y deje la contraseña sugerida (o genere otra). Presione <strong>Crear acceso</strong>.</p>
+      <p><strong>Contraseña olvidada:</strong> con la misma llave, en un paciente que ya tiene usuario, se abre <strong>Restablecer contraseña</strong>. El usuario no cambia; la contraseña anterior deja de funcionar de inmediato.</p>
+      <p>El botón <strong>Agendar</strong> de cada fila abre “Nueva cita” con ese paciente ya elegido.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 7 ============================ -->
+<section>
+  <h2><span class="num">7</span>Dentista</h2>
+  <figure><img src="img/15_dentista_inicio.jpg" alt=""><figcaption><b>Figura 17.</b> Inicio del dentista: pacientes del día, espacios libres, citas de mañana y la jornada hora por hora.</figcaption></figure>
+  <figure><img src="img/16_dentista_agenda.jpg" alt=""><figcaption><b>Figura 18.</b> Mi agenda: use las flechas para cambiar de día y “Hoy” para regresar. Las citas canceladas no aparecen.</figcaption></figure>
+  <p>Cada bloque muestra al paciente, el servicio, el motivo y el estatus. Las citas <span class="pill pill--rep">● Reprogramadas</span> se marcan en ámbar para identificarlas rápido.</p>
+</section>
+
+<!-- ============================ 8 ============================ -->
+<section>
+  <h2><span class="num">8</span>Catálogo de servicios</h2>
+  <figure><img src="img/17_servicios.jpg" alt=""><figcaption><b>Figura 19.</b> Servicios con descripción, duración y precio en pesos mexicanos.</figcaption></figure>
+  <p>Todos los roles pueden consultarlo desde <strong>Servicios</strong>. Los precios son estimados; el costo final lo confirma la clínica.</p>
+
+  <h2><span class="num">9</span>Mensajes del sistema</h2>
+  <p class="entradilla">Todos los mensajes aparecen en la esquina inferior derecha o dentro del formulario, con un color según su tipo.</p>
+  <table>
+    <tr><th style="width:15%">Tipo</th><th style="width:43%">Mensaje</th><th>Qué hacer</th></tr>
+    <tr><td><span class="pill pill--err">Error</span></td><td>El campo 'hora' es obligatorio. Por favor, complételo.</td><td>Elija lo que indica el mensaje (aquí, un horario).</td></tr>
+    <tr><td><span class="pill pill--err">Error</span></td><td>El horario seleccionado no está disponible.</td><td>Otra persona lo tomó: elija otro horario de la lista actualizada.</td></tr>
+    <tr><td><span class="pill pill--err">Error</span></td><td>Usuario o contraseña incorrectos.</td><td>Revise mayúsculas y minúsculas; si no recuerda su contraseña, llame a recepción.</td></tr>
+    <tr><td><span class="pill pill--err">Error</span></td><td>Ya hay un paciente registrado con el teléfono…</td><td>Ya es paciente: pida su acceso en recepción.</td></tr>
+    <tr><td><span class="pill pill--err">Error</span></td><td>La contraseña debe tener al menos 8 caracteres, con letras y números.</td><td>Agregue números o letras hasta cumplir la regla.</td></tr>
+    <tr><td><span class="pill pill--err">Error</span></td><td>No se pudo acceder a la base de datos.</td><td>Revise que la carpeta <code>data</code> esté junto al <code>.exe</code> y que no esté abierta en otro programa.</td></tr>
+    <tr><td><span class="pill pill--rep">Aviso</span></td><td>El dentista no tiene horarios libres el…</td><td>Pruebe con otro día u otro dentista.</td></tr>
+    <tr><td><span class="pill pill--ok">Listo</span></td><td>Cita registrada / modificada / cancelada…</td><td>La operación se guardó correctamente.</td></tr>
+  </table>
+</section>
+
+<!-- ============================ 10 ============================ -->
+<section>
+  <h2><span class="num">10</span>Preguntas frecuentes</h2>
+  <h3>¿Puedo tener dos citas el mismo día?</h3>
+  <p>Sí, en horarios distintos. Lo que el sistema impide es que <em>un mismo dentista</em> tenga dos citas a la misma hora.</p>
+  <h3>¿Cuánto dura cada horario?</h3>
+  <p>Las citas inician cada hora, de 09:00 a 17:00 (la última termina a las 18:00). La duración aproximada de cada servicio aparece en el catálogo.</p>
+  <h3>Cancelé por error, ¿cómo la recupero?</h3>
+  <p>Una cita cancelada no se reactiva. Agende una nueva; si el horario sigue libre, puede elegirlo otra vez.</p>
+  <h3>¿Puedo cambiar mi usuario?</h3>
+  <p>No desde la aplicación. Si lo necesita, recepción puede registrarle un acceso nuevo.</p>
+  <h3>¿Quién ve mis datos?</h3>
+  <p>Usted ve solo sus citas. Recepción ve los datos necesarios para atenderle y cada dentista ve únicamente su propia agenda. Nadie puede ver su contraseña.</p>
+  <h3>¿Qué pasa si cierro la aplicación sin cerrar sesión?</h3>
+  <p>Nada se pierde: todo se guarda en el momento. La próxima vez que la abra, tendrá que iniciar sesión otra vez.</p>
+  <h3>Usuarios de práctica</h3>
+  <table>
+    <tr><th>Usuario</th><th>Contraseña</th><th>Rol</th></tr>
+    <tr><td><code>paciente01</code></td><td><code>Paciente#2026</code></td><td>Paciente (Ana Pérez Soto)</td></tr>
+    <tr><td><code>recepcion01</code></td><td><code>Recepcion#2026</code></td><td>Recepción</td></tr>
+    <tr><td><code>dentista01</code></td><td><code>Dentista#2026</code></td><td>Dentista (Laura Peña Núñez)</td></tr>
+  </table>
+  <p class="pie-final">Orthoimagen Dental · Sistema de citas versión 1.1 · Desarrollo de Aplicaciones y Servicios Virtuales, Universidad Iberoamericana León · Matias Ochoa Tirado y Mateo Javier Ortega Fernández.</p>
+</section>
+</body>
+</html>
