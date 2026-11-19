@@ -52,9 +52,9 @@ def horarios_del_dia():
     ]
 
 
-def validar_fecha(fecha, hoy=None):
+def validar_fecha(fecha, hoy=None, permitir_pasadas=False):
     """Devuelve "" si la fecha es válida y no está en el pasado; si no, el
-    mensaje de error."""
+    mensaje de error. Para consultas (RF-06) se permiten fechas pasadas."""
     if esta_vacio(fecha):
         return MENSAJE_FECHA_INVALIDA.format(fecha="")
     texto = str(fecha).strip()
@@ -62,7 +62,7 @@ def validar_fecha(fecha, hoy=None):
         dia = datetime.strptime(texto, "%Y-%m-%d").date()
     except ValueError:
         return MENSAJE_FECHA_INVALIDA.format(fecha=texto)
-    if dia < (hoy or date.today()):
+    if not permitir_pasadas and dia < (hoy or date.today()):
         return MENSAJE_FECHA_PASADA.format(fecha=texto)
     return ""
 
